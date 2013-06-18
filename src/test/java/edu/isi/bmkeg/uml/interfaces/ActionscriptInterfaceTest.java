@@ -54,7 +54,7 @@ public class ActionscriptInterfaceTest {
 	public void testBuildSwf() throws Exception {
 				
 		asi.getUmlModel().convertToRelationalImplementation(".model.");
-		asi.buildFlexMojoMavenProject(zip, swc, "edu.isi.bmkeg", "resource-as", "0.0.1", "test-only", "test-only");
+		asi.buildFlexMojoMavenProject(zip, swc, "edu.isi.bmkeg", "resource-as", "0.0.1", "0.1.0-SNAPSHOT");
 		
 	}
 

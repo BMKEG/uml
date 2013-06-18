@@ -89,7 +89,7 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 	
 	public void buildFlexMojoMavenProject(File srcZipFile, File swfFile,
 			String group, String artifactId, String version,
-			String repoId, String repoUrl) throws Exception {
+			String bmkegParentVersion) throws Exception {
 		
 		UMLmodel m = this.getUmlModel();
 		
@@ -121,21 +121,7 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 		pomCode = pomCode.replaceAll("\\[ARTIFACTID\\]", artifactId);
 		pomCode = pomCode.replaceAll("\\[VERSION\\]", version);
 		
-		String distribMgmt = "";
-		if( version.endsWith("-SNAPSHOT") ) {
-			distribMgmt += "		<snapshotRepository>\n";
-			distribMgmt += "			<id>" + repoId + "</id>\n";
-			distribMgmt += "			<name>SNAPSHOT repository</name>\n";
-			distribMgmt += "			<url>" + repoUrl + "</url>\n";
-			distribMgmt += "		</snapshotRepository>\n";
-		} else {
-			distribMgmt += "		<repository>\n";
-			distribMgmt += "			<id>" + repoId + "</id>\n";
-			distribMgmt += "			<name>Repository</name>\n";
-			distribMgmt += "			<url>" + repoUrl + "</url>\n";
-			distribMgmt += "		</repository>\n";
-		}
-		pomCode = pomCode.replaceAll("\\[DISTRIBUTION_MANAGMENT\\]", distribMgmt);
+		pomCode = pomCode.replaceAll("\\[PARENT-VERSION\\]", bmkegParentVersion);
 
 		FileUtils.writeStringToFile(pomFile, pomCode);
 		

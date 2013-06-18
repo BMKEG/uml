@@ -931,7 +931,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 	// from the vpdmf-jpa project.
 	public void buildJpaMavenProject(File srcJarFile, File jarFile, 
 			String group, String artifactId, String version,
-			String repoId, String repoUrl) throws Exception {
+			String bmkegParentVersion) throws Exception {
 		
 		this.buildQuestions = true;
 		
@@ -993,6 +993,13 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "	<version>" + version + "</version>\n";
 		pom += "	<packaging>jar</packaging>\n";
 
+		pom += "	<parent>\n";
+		pom += "		<groupId>edu.isi.bmkeg</groupId>\n";
+		pom += "		<artifactId>bmkeg-parent</artifactId>\n";
+		pom += "		<version>" + bmkegParentVersion + "</version>\n";
+		pom += "		<relativePath>../bmkeg-parent</relativePath>\n";
+		pom += "	</parent>\n";
+		
 		pom += "	<build>\n";
 		pom += "		<plugins>\n";
 		pom += "			<plugin>\n";
@@ -1014,37 +1021,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "			</plugin>\n";
 		pom += "		</plugins>\n";
 		pom += "	</build>\n";
-		
-		if( repoId != null ) {
-			pom += "	<distributionManagement>\n";
-			if( version.endsWith("-SNAPSHOT") ) {
-				pom += "		<snapshotRepository>\n";
-				pom += "			<id>" + repoId + "</id>\n";
-				pom += "			<name>SNAPSHOT repository</name>\n";
-				pom += "			<url>" + repoUrl + "</url>\n";
-				pom += "		</snapshotRepository>\n";
-			} else {
-				pom += "		<repository>\n";
-				pom += "			<id>" + repoId + "</id>\n";
-				pom += "			<name>Repository</name>\n";
-				pom += "			<url>" + repoUrl + "</url>\n";
-				pom += "		</repository>\n";
-			}
-			pom += "	</distributionManagement>\n";
-		}
-		
-		pom += "	<repositories>\n";
-		pom += "		<repository>\n";
-		pom += "			<id>com.springsource.repository.bundles.release</id>\n";
-		pom += "			<name>SpringSource Enterprise Bundle Repository - SpringSource Releases</name>\n";
-		pom += "			<url>http://repository.springsource.com/maven/bundles/release</url>\n";
-		pom += "		</repository>\n";
-		pom += "		<repository>\n";
-		pom += "			<id>com.springsource.repository.bundles.external</id>\n";
-		pom += "			<name>SpringSource Enterprise Bundle Repository - External Releases</name>\n";
-		pom += "			<url>http://repository.springsource.com/maven/bundles/external</url>\n";
-		pom += "		</repository>\n";
-		pom += "	</repositories>\n";
 		pom += "	<dependencies>\n";
 		pom += "		<dependency>\n";
 		pom += "			<groupId>org.hibernate.javax.persistence</groupId>\n";

@@ -35,7 +35,7 @@ public class JavaUmlInterfaceTest {
         
 		ctx = AppContext.getApplicationContext();
 		magic = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile();	
-		jar1 = new File(magic.getParent() + "/ooevv-model-jpa-src.jar");	
+		jar1 = new File("target" + "/ooevv-model-jpa-src.zip");	
 		jar2 = new File(magic.getParent() + "/ooevv-model-jpa.jar");	
 		
 		resourceModel = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/resource/resource.xml").getFile();	
@@ -67,7 +67,7 @@ public class JavaUmlInterfaceTest {
 		
 	}*/
 
-	/*@Test
+	@Test
 	public void testGenerateJPAForModel() throws Exception {
 
 		UMLModelSimpleParser p = new UMLModelSimpleParser(UMLmodel.XMI_MAGICDRAW);
@@ -80,10 +80,10 @@ public class JavaUmlInterfaceTest {
 		jui = new JavaUmlInterface();
 		jui.setUmlModel(m);
 
-		jui.buildJpaMavenProject(jar1, jar2, ".model.", "temp", "temp", "temp");
+		jui.buildJpaMavenProject(jar1, null, "bmkeg.isi.edu", "ooevv-jpa-test", "1.2.3", "3.2.1");
 //		jui.generateJarForModel(jar2, ".model.", true, true);
 		
-	}*/
+	}
 
 	@Test
 	public void testGenerateSimpleJavaForModel() throws Exception {

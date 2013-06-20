@@ -1004,11 +1004,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "		<plugins>\n";
 		pom += "			<plugin>\n";
 		pom += "				<groupId>org.apache.maven.plugins</groupId>\n";
-		pom += "		    	<artifactId>maven-surefire-plugin</artifactId>\n";
-		pom += "			    <version>2.12</version>\n";
-		pom += "			</plugin>\n";
-		pom += "			<plugin>\n";
-		pom += "				<groupId>org.apache.maven.plugins</groupId>\n";
 		pom += "				<artifactId>maven-source-plugin</artifactId>\n";
 		pom += "				<version>2.1.2</version>\n";
 		pom += "				<executions>\n";
@@ -1025,8 +1020,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "		<dependency>\n";
 		pom += "			<groupId>org.hibernate.javax.persistence</groupId>\n";
 		pom += "			<artifactId>hibernate-jpa-2.0-api</artifactId>\n";
-		pom += "			<version>1.0.1.Final</version>\n";
-		pom += "			<scope>provided</scope>\n";		
 		pom += "		</dependency>\n";
 		pom += "	</dependencies>\n";
 		pom += "</project>\n";

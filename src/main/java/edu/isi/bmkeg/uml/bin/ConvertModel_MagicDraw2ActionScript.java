@@ -5,9 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.junit.After;
-import org.junit.Test;
-
 import edu.isi.bmkeg.uml.interfaces.ActionscriptInterface;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;

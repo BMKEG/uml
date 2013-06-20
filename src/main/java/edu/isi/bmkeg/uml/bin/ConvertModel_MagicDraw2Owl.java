@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.Test;
 
 import edu.isi.bmkeg.uml.interfaces.JavaUmlInterface;
 import edu.isi.bmkeg.uml.interfaces.OwlUmlInterface;

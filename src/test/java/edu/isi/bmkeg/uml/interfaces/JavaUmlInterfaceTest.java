@@ -39,7 +39,7 @@ public class JavaUmlInterfaceTest {
 		jar2 = new File(magic.getParent() + "/ooevv-model-jpa.jar");	
 		
 		resourceModel = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/resource/resource.xml").getFile();	
-		jar3 = new File(resourceModel.getParent() + "/resource-model-simple-src.jar");	
+		jar3 = new File("target" + "/resource-model-simple-src.jar");	
 		
 			
 	}

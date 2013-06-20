@@ -33,8 +33,8 @@ public class ActionscriptInterfaceTest {
         
 		ctx = AppContext.getApplicationContext();
 		magic = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile();	
-		zip = new File(magic.getParent() + "/ooevv-asModel.zip");	
-		swc = new File(magic.getParent() + "/ooevv-asModel.swc");
+		zip = new File("target" + "/ooevv-asModel.zip");	
+		swc = new File("target" + "/ooevv-asModel.swc");
 		
 		UMLModelSimpleParser p = new UMLModelSimpleParser(UMLmodel.XMI_MAGICDRAW);
 		p.parseUMLModelFile(magic);

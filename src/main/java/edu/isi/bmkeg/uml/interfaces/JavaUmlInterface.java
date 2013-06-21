@@ -1020,6 +1020,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "		<dependency>\n";
 		pom += "			<groupId>org.hibernate.javax.persistence</groupId>\n";
 		pom += "			<artifactId>hibernate-jpa-2.0-api</artifactId>\n";
+		pom += "			<scope>provided</scope>\n";		
 		pom += "		</dependency>\n";
 		pom += "	</dependencies>\n";
 		pom += "</project>\n";

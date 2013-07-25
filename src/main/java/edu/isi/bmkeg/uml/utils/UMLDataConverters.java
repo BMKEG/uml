@@ -100,7 +100,7 @@ public class UMLDataConverters {
 				Date data_date = null;
 
 				if (type.equals("timestamp")) {
-					df = new SimpleDateFormat("yyyyMMddHHmmss");
+					df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				} else if (type.equals("time")) {
 					df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				} else if (type.equals("date")) {
@@ -281,7 +281,7 @@ public class UMLDataConverters {
 			Date data_date = null;
 
 			if (type.equals("timestamp")) {
-				df = new SimpleDateFormat("yyyyMMddHHmmss");
+				df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			} else if (type.equals("time")) {
 				df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			}
@@ -299,7 +299,18 @@ public class UMLDataConverters {
 			data_date = df.parse(data, pos);
 
 			if (data_date == null) {
-				throw new Exception("String cannot be parsed as date");
+
+				// 
+				// default Date.toString() seems to be 'Wed Jul 24 21:59:31 PDT 2013'
+				//  try this as last result
+				//
+				df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
+				pos = new ParsePosition(0);
+				data_date = df.parse(data, pos);
+				
+				if( data_date == null )
+					throw new Exception("String cannot be parsed as date");
+			
 			}
 
 			data_obj = (Object) data_date;

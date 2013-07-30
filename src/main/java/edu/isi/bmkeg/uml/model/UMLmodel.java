@@ -411,6 +411,9 @@ public class UMLmodel implements Serializable {
 		if (item.getUuid() == null || item.getUuid().length() == 0)
 			throw new Exception("UUID not set");
 
+		if ( this.getItems().containsKey(item.getUuid()) )
+			throw new Exception("UUID already set in model");
+
 		this.items.put(item.getUuid(), item);
 		item.setModel(this);
 	}
@@ -444,6 +447,21 @@ public class UMLmodel implements Serializable {
 		
 		toIgnore.add( top );
 		toIgnore.addAll( that.listTypes().values() );
+		
+		//
+		// check for uuid collisions
+		//
+		Set<UMLitem> toReformat = new HashSet<UMLitem>();
+		for(UMLitem i: that.getItems().values() ) {
+			if( this.getItems().containsKey( i.getUuid() ) ) {
+				toReformat.add(i);
+			}
+		}
+		for(UMLitem i : toReformat ) {
+			that.getItems().remove(i.getUuid());
+			i.setUuid(UUID.randomUUID().toString());
+			that.getItems().put(i.getUuid(),i);
+		}
 		
 		//
 		// Map equivalences in <<proxy>> classes

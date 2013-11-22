@@ -209,7 +209,7 @@ public class MysqlUmlInterface extends UmlComponentInterface implements ImplConv
 		sqlOutput += ")";
 
 		// previously set TYPE=INNODB. In MySQL 5.5 onwards the system's default is INNODB
-		sqlOutput += ")TYPE=INNODB";
+		sqlOutput += ")ENGINE=INNODB";
 		//sqlOutput += ")";
 
 		return sqlOutput;

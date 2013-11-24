@@ -238,8 +238,8 @@ public class MysqlUmlInterface extends UmlComponentInterface implements ImplConv
 			sqlOutput = "ALTER TABLE " + tab.getImplName() + " ";
 			
 			String idxName = tab.getImplName() + "_idx";
-			if( idxName.length() > 64 )
-				idxName = tab.getImplName().substring(0,60) + "_idx";
+			if( idxName.length() > 59 )
+				idxName = tab.getImplName().substring(0,55) + "_idx";
 
 			sqlOutput += " ADD UNIQUE " + idxName + " (";
 

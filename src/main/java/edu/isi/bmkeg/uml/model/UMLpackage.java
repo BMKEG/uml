@@ -1,25 +1,9 @@
 package edu.isi.bmkeg.uml.model;
 
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-@Entity 
-@Inheritance(strategy=InheritanceType.JOINED)
-@PrimaryKeyJoinColumn(name="package_id")
 public class UMLpackage extends UMLitem {
 		
 	private static final long serialVersionUID = 716479591522767529L;
@@ -48,12 +32,10 @@ public class UMLpackage extends UMLitem {
 		this.classes = classes;
 	}
 
-    @OneToMany(mappedBy="pkg",cascade=CascadeType.ALL)
 	public Set<UMLclass> getClasses() {
 		return classes;
 	}
 
-    @OneToMany(mappedBy="pkg",cascade=CascadeType.ALL)
 	public Set<UMLassociation> getAssociations() {
 		return associations;
 	}
@@ -66,8 +48,6 @@ public class UMLpackage extends UMLitem {
 		this.parent = parent;
 	}
 
-	@ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="parent_id")
 	public UMLpackage getParent() {
 		return parent;
 	}
@@ -76,7 +56,6 @@ public class UMLpackage extends UMLitem {
 		this.children = children;
 	}
 
-	@OneToMany(mappedBy="parent")
 	public Set<UMLpackage> getChildren() {
 		return children;
 	}

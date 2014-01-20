@@ -2,7 +2,6 @@
 package edu.isi.bmkeg.uml.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -10,22 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Transient;
-
-@Entity 
-@Inheritance(strategy=InheritanceType.JOINED)
-@PrimaryKeyJoinColumn(name="class_id")
 public class UMLclass extends UMLitem {
 	
 	private static final long serialVersionUID = 6460922669137311701L;
@@ -66,8 +49,6 @@ public class UMLclass extends UMLitem {
 		this.pkg = pack;
 	}
 
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="package_id")
 	public UMLpackage getPkg() {
 		return pkg;
 	}
@@ -84,9 +65,6 @@ public class UMLclass extends UMLitem {
 		this.attributes = attributes;
 	}
 
-	@OneToMany(targetEntity=edu.isi.bmkeg.uml.model.UMLattribute.class,cascade=CascadeType.ALL)
-    @JoinTable(name="UMLclass_attributes_UMLattributes",joinColumns=@JoinColumn(name="cId"),inverseJoinColumns=@JoinColumn(name="aId"))
-	@org.hibernate.annotations.IndexColumn(name="attrOrder")
 	public List<UMLattribute> getAttributes() {
 		return attributes;
 	}
@@ -95,7 +73,6 @@ public class UMLclass extends UMLitem {
 		this.directRoles = directRoles;
 	}
 
-	@OneToMany(mappedBy="directClass")
 	public Set<UMLrole> getDirectRoles() {
 		return directRoles;
 	}
@@ -104,8 +81,6 @@ public class UMLclass extends UMLitem {
 		this.associateRoles = associateRoles;
 	}
 
-	@OneToMany(mappedBy="associateClass")
-	@MapKey(name="roleKey")
 	public Map<String, UMLrole> getAssociateRoles() {
 		return associateRoles;
 	}
@@ -114,7 +89,6 @@ public class UMLclass extends UMLitem {
 		this.linkAssociation = linkAssociation;
 	}
 
-	@OneToOne(mappedBy="linkClass")
 	public UMLassociation getLinkAssociation() {
 		return linkAssociation;
 	}
@@ -123,7 +97,6 @@ public class UMLclass extends UMLitem {
 		this.children = children;
 	}
 
-	@OneToMany(mappedBy="parent")
 	public Set<UMLclass> getChildren() {
 		return children;
 	}
@@ -132,15 +105,12 @@ public class UMLclass extends UMLitem {
 		this.parent = parent;
 	}
 
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="parent_id")
 	public UMLclass getParent() {
 		return parent;
 	} 
     
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    @OneToMany(mappedBy="parentClass")
 	public Set<UMLoperation> getOperations() {
 		return this.operations;
 	}
@@ -155,9 +125,6 @@ public class UMLclass extends UMLitem {
 		this.pkArray = pkArray;
 	}
 
-	@OneToMany
-	@JoinTable(name="UMLclass_primaryKeys_UMLattributes",joinColumns=@JoinColumn(name="cId"),inverseJoinColumns=@JoinColumn(name="apkId"))
-    @org.hibernate.annotations.IndexColumn(name="pkOrder")
 	public List<UMLattribute> getPkArray() {
 		return pkArray;
 	}
@@ -230,8 +197,6 @@ public class UMLclass extends UMLitem {
 		
 	}
 	
-	
-	@Transient
     public String debugString() {        
 
 		if( this.dataType )

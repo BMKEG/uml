@@ -3,18 +3,6 @@ package edu.isi.bmkeg.uml.model;
 
 import java.util.Iterator;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
-
-@Entity 
-@Inheritance(strategy=InheritanceType.JOINED)
-@PrimaryKeyJoinColumn(name="association_id")
 public class UMLassociation extends UMLitem {
 	
 	private static final long serialVersionUID = -5507426711188209987L;
@@ -37,8 +25,6 @@ public class UMLassociation extends UMLitem {
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="role1_id")
     public UMLrole getRole1() {        
     	return role1;
     } 
@@ -47,8 +33,6 @@ public class UMLassociation extends UMLitem {
         this.role1 = role1;
     } 
 
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="role2_id")
     public UMLrole getRole2() {        
         return role2;
     } 
@@ -57,8 +41,6 @@ public class UMLassociation extends UMLitem {
         this.role2 = role2;
     } 
 
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="linkClass_id")
     public UMLclass getLinkClass() {        
         return linkClass;
     } 
@@ -67,8 +49,6 @@ public class UMLassociation extends UMLitem {
         this.linkClass = linkClass;
     }
     
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="pkg_id")
 	public UMLpackage getPkg() {
 		return pkg;
 	}

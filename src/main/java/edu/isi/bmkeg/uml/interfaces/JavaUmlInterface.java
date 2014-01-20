@@ -321,6 +321,12 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		code += generateImportStatements(c, pkgPattern);
 				
 		code += "\nimport java.util.*;\n";
+		
+		if( c.getImplName().endsWith("_qo") ) 
+			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfQueryObject;\n";
+		else 
+			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfObject;\n";
+		
 		code += "import java.io.Serializable;\n\n";
 
 		if( annotFlag ) 
@@ -344,6 +350,13 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			code += " extends " + c.getParent().getImplName();		
 		} else {
 			code += " implements Serializable";		
+			
+			if( c.getImplName().endsWith("_qo") ) 
+				code += ", VpdmfQueryObject";
+			else 
+				code += ", VpdmfObject";
+
+			
 		}
 
 		code += " {\n";
@@ -450,6 +463,12 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		code += generateImportStatements(c, pkgPattern);
 				
 		code += "\nimport java.util.*;\n";
+
+		if( c.getImplName().endsWith("_qo") ) 
+			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfQueryObject;\n";
+		else 
+			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfObject;\n";
+
 		code += "import java.io.Serializable;\n\n";
 
 		if( annotFlag ) 
@@ -465,6 +484,12 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			code += " extends " + c.getParent().getImplName();		
 		} else {
 			code += " implements Serializable";		
+			
+			if( c.getImplName().endsWith("_qo") ) 
+				code += ", VpdmfQueryObject";
+			else 
+				code += ", VpdmfObject";
+				
 		}
 
 		code += " {\n";
@@ -1018,6 +1043,11 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "	</build>\n";
 		pom += "	<dependencies>\n";
 		pom += "		<dependency>\n";
+		pom += "			<groupId>edu.isi.bmkeg</groupId>\n";
+		pom += "			<artifactId>vpdmfCore</artifactId>\n";
+		pom += "			<scope>provided</scope>\n";		
+		pom += "		</dependency>\n";
+		pom += "		<dependency>\n";
 		pom += "			<groupId>org.hibernate.javax.persistence</groupId>\n";
 		pom += "			<artifactId>hibernate-jpa-2.0-api</artifactId>\n";
 		pom += "			<scope>provided</scope>\n";		
@@ -1045,7 +1075,8 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 
 		File uml = new File(main_resources_vpdmf.getPath() + "/" + m.getName() + suffix);
 		FileOutputStream fos = new FileOutputStream(uml);
-		fos.write(m.getSourceData());
+		if( m.getSourceData() != null ) 
+			fos.write(m.getSourceData());
 		fos.close();
 		filesInSrcJar.put("src/main/resources/model/" + uml.getName(), uml);
 

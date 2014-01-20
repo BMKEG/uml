@@ -3,21 +3,6 @@ package edu.isi.bmkeg.uml.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
-@PrimaryKeyJoinColumn(name = "attribute_id")
 public class UMLattribute extends UMLparameter {
 
 	private static final long serialVersionUID = -3127028801604990254L;
@@ -48,8 +33,6 @@ public class UMLattribute extends UMLparameter {
 		this.parentClass = parentClass;
 	}
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "class_id")
 	public UMLclass getParentClass() {
 		return parentClass;
 	}
@@ -59,8 +42,6 @@ public class UMLattribute extends UMLparameter {
 		this.fkRole = fkRole;
 	}
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "fkRole_id")
 	public UMLrole getFkRole() {
 		return fkRole;
 	}
@@ -69,8 +50,6 @@ public class UMLattribute extends UMLparameter {
 		this.pk = pk;
 	}
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "pk_id")
 	public UMLattribute getPk() {
 		return pk;
 	}
@@ -79,7 +58,6 @@ public class UMLattribute extends UMLparameter {
 		this.fk = fk;
 	}
 
-	@OneToMany(mappedBy = "pk")
 	public List<UMLattribute> getFk() {
 		return fk;
 	}

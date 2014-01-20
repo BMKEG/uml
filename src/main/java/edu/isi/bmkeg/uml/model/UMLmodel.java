@@ -13,21 +13,6 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.MapKey;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
-
 import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
@@ -37,8 +22,6 @@ import org.jgrapht.traverse.TopologicalOrderIterator;
 
 import edu.isi.bmkeg.uml.interfaces.UmlComponentInterface;
 
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 public class UMLmodel implements Serializable {
 
 	private static final long serialVersionUID = -7240976503559507344L;
@@ -89,8 +72,6 @@ public class UMLmodel implements Serializable {
 		this.id = id;
 	}
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public long getId() {
 		return id;
 	}
@@ -99,8 +80,6 @@ public class UMLmodel implements Serializable {
 		this.topPackage = topPackage;
 	}
 
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "topPackage_id")
 	public UMLpackage getTopPackage() {
 		return topPackage;
 	}
@@ -133,8 +112,6 @@ public class UMLmodel implements Serializable {
 		this.sourceData = sourceData;
 	}
 
-	@Lob
-	@Column(length = 10485760)
 	public byte[] getSourceData() {
 		return sourceData;
 	}
@@ -143,8 +120,6 @@ public class UMLmodel implements Serializable {
 		this.items = items;
 	}
 
-	@OneToMany(mappedBy = "model", cascade = CascadeType.ALL)
-	@MapKey(name = "uuid")
 	public Map<String, UMLitem> getItems() {
 		return items;
 	}
@@ -280,7 +255,6 @@ public class UMLmodel implements Serializable {
 
 	}
 
-	@Transient
 	public Map<String, UMLclass> listTypes() {
 		Map<String, UMLclass> map = new HashMap<String, UMLclass>();
 
@@ -303,7 +277,6 @@ public class UMLmodel implements Serializable {
 
 	}
 	
-	@Transient
 	public Map<String, UMLclass> listImplTypes() {
 		Map<String, UMLclass> map = new HashMap<String, UMLclass>();
 

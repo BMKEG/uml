@@ -196,6 +196,11 @@ public class UimaUMLInterface extends JavaUmlInterface implements
 		
 		pom += "	<dependencies>\n";
 		pom += "		<dependency>\n";
+		pom += "			<groupId>edu.isi.bmkeg</groupId>\n";
+		pom += "			<artifactId>vpdmfCore</artifactId>\n";
+		pom += "			<scope>provided</scope>\n";		
+		pom += "		</dependency>\n";
+		pom += "		<dependency>\n";
 		pom += "			<groupId>org.hibernate.javax.persistence</groupId>\n";
 		pom += "			<artifactId>hibernate-jpa-2.0-api</artifactId>\n";
 		pom += "			<scope>provided</scope>\n";		

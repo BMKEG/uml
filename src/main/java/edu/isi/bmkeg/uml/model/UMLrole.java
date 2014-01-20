@@ -1,15 +1,10 @@
 package edu.isi.bmkeg.uml.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import javax.persistence.*;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-@Entity 
-@Inheritance(strategy=InheritanceType.JOINED)
-@PrimaryKeyJoinColumn(name="role_id")
 public class UMLrole extends UMLitem {
 
 	private static final long serialVersionUID = -3879572217333140356L;
@@ -51,8 +46,6 @@ public class UMLrole extends UMLitem {
 		this.ass = ass;
 	}
 
-    @OneToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="association_id")
 	public UMLassociation getAss() {
 		return ass;
 	}
@@ -85,8 +78,6 @@ public class UMLrole extends UMLitem {
 		this.associateClass = associateClass;
 	}
 
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="associateClass_id")
 	public UMLclass getAssociateClass() {
 		return associateClass;
 	}
@@ -95,8 +86,6 @@ public class UMLrole extends UMLitem {
 		this.directClass = directClass;
 	}
 
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="directClass_id")
 	public UMLclass getDirectClass() {
 		return directClass;
 	}
@@ -105,8 +94,6 @@ public class UMLrole extends UMLitem {
 		this.fkArray = fkArray;
 	}
 
-	@OneToMany(targetEntity=edu.isi.bmkeg.uml.model.UMLattribute.class)
-	@org.hibernate.annotations.IndexColumn(name="fkRole_order")
 	public List<UMLattribute> getFkArray() {
 		return fkArray;
 	} 
@@ -119,8 +106,6 @@ public class UMLrole extends UMLitem {
 		return roleKey;
 	} 
 	
-    @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name="implementz_id")
 	public UMLrole getImplementz() {
 		return implementz;
 	}
@@ -133,7 +118,6 @@ public class UMLrole extends UMLitem {
 		this.implementedBy = implementedBy;
 	}
 
-	@OneToMany(mappedBy="implementz",targetEntity=edu.isi.bmkeg.uml.model.UMLrole.class)
 	public Set<UMLrole> getImplementedBy() {
 		return implementedBy;
 	} 

@@ -4,19 +4,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-
-@Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class UMLitem implements Serializable {
 
 	private static final long serialVersionUID = -6488233964792344194L;
@@ -81,8 +68,6 @@ public abstract class UMLitem implements Serializable {
 		this.id = id;
 	}
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public long getId() {
 		return id;
 	}
@@ -99,8 +84,6 @@ public abstract class UMLitem implements Serializable {
 		this.model = model;
 	}
 
-	@ManyToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "model_id")
 	public UMLmodel getModel() {
 		return model;
 	}
@@ -129,7 +112,6 @@ public abstract class UMLitem implements Serializable {
 		return toImplement;
 	}
 
-	@Lob
 	public String getDocumentation() {
 		return documentation;
 	}

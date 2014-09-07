@@ -334,7 +334,8 @@ public class UMLDataConverters {
 	    if(type.equals("char") || type.equals("String") || type.equals("url") ||
 	       type.startsWith("string(") || type.equals("date") ||
 	       type.equals("year") || type.equals("time") ||
-	       type.equals("timestamp") || type.equals("longString")) {
+	       type.equals("timestamp") || type.equals("longString")
+	       || type.equals("shortString")) {
 
 	      quote = "'";
 

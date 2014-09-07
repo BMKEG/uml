@@ -48,6 +48,7 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 import uk.ac.manchester.cs.owl.owlapi.OWLImportsDeclarationImpl;
 import edu.isi.bmkeg.uml.model.UMLattribute;
 import edu.isi.bmkeg.uml.model.UMLclass;
+import edu.isi.bmkeg.uml.model.UMLitem;
 import edu.isi.bmkeg.uml.model.UMLrole;
 
 /**
@@ -217,8 +218,14 @@ public class OwlAPIUtility {
 			} else {
 				
 				String key = propMap.get( a.getBaseName() );
-			
-				UMLattribute firstAttr = (UMLattribute) c.getModel().getItems().get(key);
+	
+				UMLitem item = c.getModel().getItems().get(key);
+
+				if( item instanceof UMLrole ) {
+					System.out.print("ARG");
+				}
+				
+				UMLattribute firstAttr = (UMLattribute) item;
 				UMLclass type = firstAttr.getType();
 				
 				String t = type.getBaseName();

@@ -432,6 +432,7 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 			if( a.getFkRole() != null)
 				continue;
 			
+			code += "		[Bindable]\n";		 									
 			if( a.getStereotype() != null && 
 					a.getStereotype().equals("PK") &&
 					a.getParentClass().getParent() != null) {
@@ -457,6 +458,7 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 			if( !r.getNavigable() )
 				continue;
 			
+			code += "		[Bindable]\n";		 									
 			if( r.getMult_upper() != -1) {
 				code += "		public var " + key + ":" + r.getDirectClass().getImplName() + ";\n";
 			} else {

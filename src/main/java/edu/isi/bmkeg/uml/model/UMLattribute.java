@@ -172,6 +172,10 @@ public class UMLattribute extends UMLparameter {
 		return addr;
 
 	}
+	
+	public String readPrefix() throws Exception {
+		return this.getParentClass().getPkg().readPrefix();
+	}
 
 	public boolean isUnique() {
 		return unique;

@@ -1,6 +1,7 @@
 
 package edu.isi.bmkeg.uml.model;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import edu.isi.bmkeg.utils.Converters;
 
 public class UMLclass extends UMLitem {
 	
@@ -273,6 +276,16 @@ public class UMLclass extends UMLitem {
 		}
 		return a;
   	}
+
+	public String readUrl() throws Exception {
+		URI uri = Converters.convertUmlAddressToUri(this.readClassAddress());
+		String url = uri.toURL().toString();
+		return url;
+	}
+	
+	public String readPrefix() throws Exception {
+		return this.getPkg().readPrefix();
+	}
 	
 	public String readClassAddress() {
 		return this.classAddress.substring(2);
@@ -418,5 +431,6 @@ public class UMLclass extends UMLitem {
 	public String toString() {
 		return this.readClassAddress();
 	}
+	
   	
  }

@@ -1,8 +1,11 @@
 package edu.isi.bmkeg.uml.model;
 
+import java.net.URI;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import edu.isi.bmkeg.utils.Converters;
 
 public class UMLpackage extends UMLitem {
 		
@@ -143,4 +146,40 @@ public class UMLpackage extends UMLitem {
 		return c;
 	
 	}	
+
+	public String readUrl() throws Exception {
+		URI uri = Converters.convertUmlAddressToUri(this.readPackageAddress());
+		String url = uri.toURL().toString();
+		return url;
+	}
+
+	public URI readUri() throws Exception {
+		if( this.getUri() != null ) 
+			return this.getUri();
+		else 
+			return Converters.convertUmlAddressToUri(this.readPackageAddress());
+	}
+
+	public String readPrefix() throws Exception {
+
+		URI uri = this.readUri();
+		
+		String prefix = "";		
+		if( uri.getPath().length() > 0 ){
+			String p = uri.getPath();		
+			prefix = p.substring(p.lastIndexOf("/"), p.length());
+		} else {
+			prefix = uri.getHost();		
+			prefix = prefix.replaceAll("www.", "");
+			prefix = prefix.replaceAll(".com", "");
+			prefix = prefix.replaceAll(".org", "");
+			prefix = prefix.replaceAll(".edu", "");
+			prefix = prefix.replaceAll(".net", "");
+		
+		}		
+
+		return prefix;
+	
+	}
+
 }

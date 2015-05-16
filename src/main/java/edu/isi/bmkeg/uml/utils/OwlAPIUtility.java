@@ -154,8 +154,8 @@ public class OwlAPIUtility {
 		// This is where we will put all the class-level restrictions.
 		//
 		Set<OWLRestriction> restrictions = new HashSet<OWLRestriction>();
-		OWLClass cc = factory.getOWLClass(":" + c.readClassAddress(), pm);
-
+		OWLClass cc = factory.getOWLClass(c.getPkg().readPrefix() + ":" + c.getBaseName(), pm);
+		
 		//
 		// Add datatype & object type properties to classes from UML attributes. 
 		// - note that OWL uses universal definitions for properties. 
@@ -186,29 +186,37 @@ public class OwlAPIUtility {
 				continue;
 			}
 			
-			if( !propMap.containsKey(a.getBaseName()) ) {
+			if( !propMap.containsKey(a.readPrefix() + ":" + a.getBaseName()) ) {
 				
-				propMap.put(a.getBaseName(), a.getUuid() );
+				propMap.put(a.readPrefix() + ":" + a.getBaseName(), a.getUuid() );
 				
 				if( a.getType().isDataType() ) {
 					
-					this.addDataPropertyRange(a.getBaseName(), a.getType().getBaseName(), o);						
-					this.addDataPropertyDomain(c.readClassAddress(), a.getBaseName(), o);	
+					this.addDataPropertyRange(
+							a.readPrefix() + ":" + a.getBaseName(), 
+							a.getType().getBaseName(), 
+							o);						
+					this.addDataPropertyDomain(
+							c.readPrefix() + ":" + c.getBaseName(), 
+							a.readPrefix() + ":" + a.getBaseName(),
+							o);	
 					
 					OWLDatatype dt = this.dataTypes.get( a.getType().getBaseName() );					
 					OWLDataRange dataRng = factory.getOWLDatatypeRestriction(dt);
 					
-					OWLDataProperty dp = factory.getOWLDataProperty(":" + a.getBaseName(), pm);
+					OWLDataProperty dp = factory.getOWLDataProperty( a.readPrefix() + ":" + a.getBaseName(), pm);
 					restrictions.add( factory.getOWLDataSomeValuesFrom(dp, dataRng) );			
 					
 				} else {
 
 //					this.addObjectPropertyDomain(a.readCleanAddress(), c.readClassAddress(), o);					
-					this.addObjectPropertyRange(a.getBaseName(), a.getType().readClassAddress(), o);						
+					this.addObjectPropertyRange(
+							a.readPrefix() + ":" + a.getBaseName(), 
+							a.getType().readPrefix() + ":" + a.getType() + a.getBaseName(), o);						
 
 					Set<String> domSet = new HashSet<String>();
-					domSet.add(c.readClassAddress());
-					domains.put(a.getBaseName(), domSet);
+					domSet.add(c.readPrefix() + ":" + c.getBaseName());
+					domains.put(a.readPrefix() + ":" + a.getBaseName(), domSet);
 										
 				}
 				
@@ -217,7 +225,7 @@ public class OwlAPIUtility {
 				
 			} else {
 				
-				String key = propMap.get( a.getBaseName() );
+				String key = propMap.get( a.readPrefix() + ":" + a.getBaseName() );
 	
 				UMLitem item = c.getModel().getItems().get(key);
 
@@ -245,9 +253,13 @@ public class OwlAPIUtility {
 				
 				if( a.getType().isDataType() ) {
 					
-					this.addDataPropertyDomain(c.readClassAddress(), firstAttr.readCleanAddress(), o);						
+					this.addDataPropertyDomain(c.readPrefix() + ":" + c.getBaseName(), 
+							firstAttr.readCleanAddress(), o);						
 
-					OWLDataProperty dp = factory.getOWLDataProperty(":" + firstAttr.getBaseName(), pm);
+					OWLDataProperty dp = factory.getOWLDataProperty( 
+							firstAttr.readPrefix() + ":" + firstAttr.getBaseName(), 
+							pm);
+					
 					OWLDatatype dt = this.dataTypes.get( firstAttr.getType().getBaseName() );					
 					
 					OWLDataRange dataRng = factory.getOWLDatatypeRestriction(dt);
@@ -257,9 +269,9 @@ public class OwlAPIUtility {
 
 //					this.addObjectPropertyDomain(firstAttr.readCleanAddress(), c.readClassAddress(), o);											
 
-					Set<String> domSet = domains.get(a.getBaseName());
+					Set<String> domSet = domains.get(a.readPrefix() + ":" + a.getBaseName());
 
-					domSet.add(c.readClassAddress());
+					domSet.add(c.readPrefix() + ":" + c.getBaseName() );
 					domains.put(key, domSet);
 					
 				}
@@ -283,7 +295,9 @@ public class OwlAPIUtility {
 			// 
 			// Only include roles that are not foreign keys & are marked as 'implemented' 
 			//
-			if( !r.getNavigable() || !r.getToImplement()) {
+			if( !r.getNavigable() || 
+					!r.getToImplement() || 
+					r.readPrefix().length() == 0) {
 				continue;
 			}
 
@@ -298,22 +312,25 @@ public class OwlAPIUtility {
 				r = r.getImplementz();			
 			} 
 						
-			if( !propMap.containsKey(r.getBaseName()) ) {
+			if( !propMap.containsKey(r.readPrefix() + ":" + r.getBaseName()) ) {
 			
-				propMap.put(r.getBaseName(), r.getUuid() );
+				propMap.put(r.readPrefix() + ":" + r.getBaseName(), r.getUuid() );
 				
 				//this.addObjectPropertyDomain(r.readCleanAddress(), c.readClassAddress(), o);						
-				this.addObjectPropertyRange(r.getBaseName(), r.getDirectClass().readClassAddress(), o);						
+				this.addObjectPropertyRange(
+						r.readPrefix() + ":" + r.getBaseName(), 
+						r.getDirectClass().readPrefix() + ":" + r.getDirectClass().getBaseName(), 
+						o);						
 								
 				this.addNameComment(r.getBaseName(), r.getBaseName(), o);
 				
 				Set<String> domSet = new HashSet<String>();
-				domSet.add(c.readClassAddress());
-				domains.put(r.getBaseName(), domSet);
+				domSet.add(c.readPrefix() + ":" + c.getBaseName());
+				domains.put(r.readPrefix() + ":" + r.getBaseName(), domSet);
 				
 			} else {
 				
-				String key = propMap.get(r.getBaseName() );
+				String key = propMap.get(r.readPrefix() + ":" + r.getBaseName() );
 				
 				UMLclass range = null;
 				String signature = "";
@@ -322,7 +339,7 @@ public class OwlAPIUtility {
 
 					UMLattribute a = (UMLattribute) c.getModel().getItems().get(key);
 					signature = a.getParentClass().getBaseName() + "." + a.getBaseName();
-					id = a.readCleanAddress();
+					id = a.readPrefix() + ":" + a.getBaseName();
 					range = a.getType();
 					
 				} else { 
@@ -330,7 +347,7 @@ public class OwlAPIUtility {
 					UMLrole firstRole = (UMLrole) c.getModel().getItems().get(key);
 					signature = firstRole.getAssociateClass().getClassAddress() + "." + firstRole.getBaseName();
 					range = firstRole.getDirectClass();					
-					id = firstRole.readCleanAddress();
+					id = firstRole.readPrefix() + ":" + firstRole.getBaseName();
 					
 				}
 				
@@ -341,14 +358,14 @@ public class OwlAPIUtility {
 								r.getBaseName() + "-->" + r.getDirectClass().getBaseName() );
 				}
 				
-				OWLObjectProperty op = factory.getOWLObjectProperty(":" + r.getBaseName(), pm);
+				OWLObjectProperty op = factory.getOWLObjectProperty(r.readPrefix() + ":" + r.getBaseName(), pm);
 				
-				OWLClass tc = factory.getOWLClass(":" + range.readClassAddress(), pm);
+				OWLClass tc = factory.getOWLClass(range.readPrefix() + ":" + range.getBaseName(), pm);
 				//this.addObjectPropertyDomain(id, c.readClassAddress(), o);
 					
-				Set<String> domSet = domains.get(r.getBaseName());
-				domSet.add(c.readClassAddress());
-				domains.put(r.getBaseName(), domSet);
+				Set<String> domSet = domains.get(r.readPrefix() + ":" + r.getBaseName());
+				domSet.add(c.readPrefix() + ":" + c.getBaseName());
+				domains.put(r.readPrefix() + ":" + r.getBaseName(), domSet);
 				
 			}
 			
@@ -358,11 +375,11 @@ public class OwlAPIUtility {
 	
 	public void constructAllDomainRestrictions (OWLOntology o) throws Exception {
 		
-		Iterator<String> propNameIt = this.domains.keySet().iterator();
-		while(propNameIt.hasNext()) {
-			String propName = propNameIt.next();
+		for ( String propName : this.domains.keySet() ) {
+			
 			Set<String> domSet = this.domains.get(propName);
 			this.addObjectPropertyDomainSet(propName, domSet, o);
+		
 		}
 		
 	}
@@ -372,14 +389,11 @@ public class OwlAPIUtility {
 	// Small-scale functions to add things to ontologies
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	public void addClass(String cStr, OWLOntology o) {
-		String prefix = pm.getDefaultPrefix();
-		if (prefix != null) {
-			cStr = cStr.replaceAll(prefix, "");
-		}
-
-		OWLClass c = factory.getOWLClass(":" + cStr, pm);
+		
+		OWLClass c = factory.getOWLClass( cStr, pm);
 		OWLDeclarationAxiom a = factory.getOWLDeclarationAxiom(c);
 		manager.addAxiom(o, a);
+	
 	}
 
 	public void addSubClassToClass(String cStr, String scStr, OWLOntology o) {
@@ -393,22 +407,16 @@ public class OwlAPIUtility {
 			scStr = scStr.replaceAll(prefix, "");
 		}
 
-		OWLClass c = factory.getOWLClass(":" + cStr, pm);
-		OWLClass sc = factory.getOWLClass(":" + scStr, pm);
+		OWLClass c = factory.getOWLClass( cStr, pm);
+		OWLClass sc = factory.getOWLClass( scStr, pm);
 		OWLAxiom a = factory.getOWLSubClassOfAxiom(sc, c);
 		manager.addAxiom(o, a);
 	}
 
 	public void addIndividualToClass(String cStr, String iStr, OWLOntology o) {
-		// TODO: Fix up the prefix management. (see above)
-		String prefix = pm.getDefaultPrefix();
-		if (prefix != null) {
-			cStr = cStr.replaceAll(prefix, "");
-			iStr = iStr.replaceAll(prefix, "");
-		}
 
-		OWLClass c = factory.getOWLClass(":" + cStr, pm);
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
+		OWLClass c = factory.getOWLClass(cStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iStr, pm);
 		OWLClassAssertionAxiom a = factory.getOWLClassAssertionAxiom(c, i);
 		manager.addAxiom(o, a);
 		
@@ -416,9 +424,9 @@ public class OwlAPIUtility {
 	
 	public void addObjectPropertyToIndividual(String iStr, String propStr, String tStr, OWLOntology o) {			
 
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
-		OWLObjectProperty op = factory.getOWLObjectProperty(":" + propStr, pm);
-		OWLNamedIndividual t = factory.getOWLNamedIndividual(":" + tStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iStr, pm);
+		OWLObjectProperty op = factory.getOWLObjectProperty(propStr, pm);
+		OWLNamedIndividual t = factory.getOWLNamedIndividual(tStr, pm);
 		
 		OWLAxiom ax = factory.getOWLObjectPropertyAssertionAxiom(op, i, t);
 	    manager.applyChange(new AddAxiom(o, ax));
@@ -427,8 +435,8 @@ public class OwlAPIUtility {
 	
 	public void addDataPropertyToIndividual(String iStr, String propStr, String value, OWLOntology o) {			
 
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + propStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty(propStr, pm);
 		
 		OWLAxiom ax = factory.getOWLDataPropertyAssertionAxiom(dp, i, value);
 	 	manager.applyChange(new AddAxiom(o, ax));
@@ -437,8 +445,8 @@ public class OwlAPIUtility {
 
 	public void addDataPropertyToIndividual(String iStr, String propStr, int value, OWLOntology o) {			
 
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + propStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty(propStr, pm);
 		
 		OWLAxiom ax = factory.getOWLDataPropertyAssertionAxiom(dp, i, value);
 	 	manager.applyChange(new AddAxiom(o, ax));
@@ -447,8 +455,8 @@ public class OwlAPIUtility {
 
 	public void addDataPropertyToIndividual(String iStr, String propStr, float value, OWLOntology o) {			
 
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + propStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual( iStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty( propStr, pm);
 		
 		OWLAxiom ax = factory.getOWLDataPropertyAssertionAxiom(dp, i, value);
 	 	manager.applyChange(new AddAxiom(o, ax));
@@ -457,8 +465,8 @@ public class OwlAPIUtility {
 
 	public void addDataPropertyToIndividual(String iStr, String propStr, long value, OWLOntology o) {			
 
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + propStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty(propStr, pm);
 		
 		OWLAxiom ax = factory.getOWLDataPropertyAssertionAxiom(dp, i, value);
 	 	manager.applyChange(new AddAxiom(o, ax));
@@ -467,8 +475,8 @@ public class OwlAPIUtility {
 	
 	public void addDataPropertyToIndividual(String iStr, String propStr, double value, OWLOntology o) {			
 
-		OWLNamedIndividual i = factory.getOWLNamedIndividual(":" + iStr, pm);
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + propStr, pm);
+		OWLNamedIndividual i = factory.getOWLNamedIndividual(iStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty(propStr, pm);
 		
 		OWLAxiom ax = factory.getOWLDataPropertyAssertionAxiom(dp, i, value);
 	 	manager.applyChange(new AddAxiom(o, ax));
@@ -477,8 +485,8 @@ public class OwlAPIUtility {
 	
 	public void addDataPropertyDomain(String cStr, String attrStr, OWLOntology o) {
 
-		OWLClass c = factory.getOWLClass(":" + cStr, pm);
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + attrStr, pm);
+		OWLClass c = factory.getOWLClass(cStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty(attrStr, pm);
 			
 		OWLDataPropertyDomainAxiom ax = factory.getOWLDataPropertyDomainAxiom(dp, c);
 		
@@ -490,7 +498,7 @@ public class OwlAPIUtility {
 		
         OWLDatatype type = this.dataTypes.get(typeString);
 		
-		OWLDataProperty dp = factory.getOWLDataProperty(":" + attrStr, pm);
+		OWLDataProperty dp = factory.getOWLDataProperty(attrStr, pm);
 			
 		OWLDataPropertyRangeAxiom ax = factory.getOWLDataPropertyRangeAxiom(dp, type);
 
@@ -504,8 +512,8 @@ public class OwlAPIUtility {
 			return;
 		}
 		
-		OWLClass c = factory.getOWLClass(":" + cStr, pm);
-		OWLObjectProperty op = factory.getOWLObjectProperty(":" + propStr, pm);
+		OWLClass c = factory.getOWLClass(cStr, pm);
+		OWLObjectProperty op = factory.getOWLObjectProperty(propStr, pm);
 			
 		OWLObjectPropertyRangeAxiom ax = factory.getOWLObjectPropertyRangeAxiom(op, c);
 		
@@ -521,7 +529,7 @@ public class OwlAPIUtility {
 		while( cStrIt.hasNext() ) {
 			String cStr = cStrIt.next();
 			
-			OWLClass c = factory.getOWLClass(":" + cStr, pm);
+			OWLClass c = factory.getOWLClass(cStr, pm);
 			s.add(c);	
 		}
 		
@@ -536,8 +544,8 @@ public class OwlAPIUtility {
 	
 	public void addObjectPropertyDomain(String propStr, String cStr, OWLOntology o) {
 		
-		OWLClass c = factory.getOWLClass(":" + cStr, pm);
-		OWLObjectProperty op = factory.getOWLObjectProperty(":" + propStr, pm);
+		OWLClass c = factory.getOWLClass(cStr, pm);
+		OWLObjectProperty op = factory.getOWLObjectProperty( propStr, pm);
 			
 		OWLObjectPropertyDomainAxiom ax = factory.getOWLObjectPropertyDomainAxiom(op, c);
 		
@@ -591,6 +599,10 @@ public class OwlAPIUtility {
 
 	}
 
+	public void setPrefix(String prefixName, String prefixUri) {
+
+		pm.setPrefix(prefixName, prefixUri);
+	}
 	
 	public void setPrefix(String prefixUri) {
 

@@ -150,5 +150,9 @@ public class UMLrole extends UMLitem {
 
 	}
 
+	public String readPrefix() throws Exception {
+		return this.getDirectClass().getPkg().readPrefix();
+	}
+
 	
 }

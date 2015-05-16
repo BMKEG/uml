@@ -42,14 +42,12 @@ import edu.isi.bmkeg.utils.Converters;
 import edu.isi.bmkeg.utils.MapCreate;
 import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
 
-public class JavaUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplConvert {
 	
-	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.JavaUMLInteface");
+	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.JavaPojoUmlInterface");
 
 	private boolean annotFlag = true;
 	private ClassPool pool = ClassPool.getDefault();
-	
-	private boolean buildQuestions = false;
 	
 	private Map<String, String> queryObjectLookupTable;
 	private Map<String, String> javaLookupTable;
@@ -81,18 +79,10 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		"String", "String", "String",
 		"String", "String", "String" };
 
-	public JavaUmlInterface() throws Exception {
+	public JavaPojoUmlInterface() throws Exception {
 		
 		this.buildLookupTable();
 
-	}
-
-	public boolean isBuildQuestions() {
-		return buildQuestions;
-	}
-
-	public void setBuildQuestions(boolean buildQuestions) {
-		this.buildQuestions = buildQuestions;
 	}
 
 	public void buildLookupTable() throws Exception {
@@ -100,9 +90,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		javaLookupTable = new HashMap<String, String>(MapCreate.asMap(
 				UmlComponentInterface.baseAttrTypes, javaTargetTypes));
 		
-		queryObjectLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaQuestionTargetTypes));
-
 		this.setLookupTable(javaLookupTable);
 		
 	}
@@ -163,7 +150,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			
 			String fAddr = addr.replaceAll("\\.", "/"); 
 				
-			String code = this.generateJPACodeForClass(c, pkgPattern);
+			String code = this.generateCodeForClass(c, pkgPattern);
 			
 			File f = new File(dAddr + "/" + fAddr + ".java"); 
 			
@@ -173,52 +160,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			javaFilePaths.add(dumpDir.getAbsolutePath() + "/" + fAddr + ".java");
 								
 		}
-		
-		if( this.buildQuestions ) {
-			
-			this.getUmlModel().convertToQuestionObjects();
-			boolean af = this.annotFlag;
-			this.annotFlag = false;
-			
-			this.setLookupTable(queryObjectLookupTable);
-			this.convertAttributes();
-						
-			classMap = this.getUmlModel().listClasses(pkgPattern);
-			cIt = classMap.keySet().iterator();
-			while(cIt.hasNext()) {
-				String addr = cIt.next();
-				UMLclass c = classMap.get(addr);
-			
-				addr = addr.substring(2,addr.length());
 				
-				// Check to see if the class is a set backing table... 
-				// if so don't generate the source code.
-				if( c.getStereotype() != null && c.getStereotype().equals("Link") ){
-					continue;
-				}
-				
-				String fAddr = addr.replaceAll("\\.", "/"); 
-				
-				String code = this.generateJPACodeForClass(c, pkgPattern);
-				
-				File f = new File(dAddr + "/" + fAddr + ".java"); 
-				
-				FileUtils.writeStringToFile(f, code);
-				filesInZip.put(fAddr + ".java", f);
-				
-				javaFilePaths.add(dumpDir.getAbsolutePath() + "/" + fAddr + ".java");
-									
-			}
-
-			this.getUmlModel().convertFromQuestionObjects();
-
-			this.setLookupTable(javaLookupTable);
-			this.convertAttributes();
-
-			this.annotFlag = af;
-			
-		}
-		
 		return filesInZip;
 		
 	}	
@@ -305,7 +247,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 	 * @return
 	 * @throws Exception
 	 */
-	protected String generateJPACodeForClass(UMLclass c, String pkgPattern) throws Exception {
+	protected String generateCodeForClass(UMLclass c, String pkgPattern) throws Exception {
 
 		String code = "";
 		
@@ -321,42 +263,19 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		code += generateImportStatements(c, pkgPattern);
 				
 		code += "\nimport java.util.*;\n";
-		
-		if( c.getImplName().endsWith("_qo") ) 
-			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfQueryObject;\n";
-		else 
-			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfObject;\n";
-		
+				
 		code += "import java.io.Serializable;\n\n";
-
-		if( annotFlag ) 
-			code += "import javax.persistence.*;\n";
 
 		if( c.getDocumentation() != null && c.getDocumentation().length() > 0 ) {
 			code += this.commentOut(c.getDocumentation(), 0);
 		}
-		
-		if( annotFlag ) {
-			code += "@Entity\n";
-			code += "@Inheritance(strategy=InheritanceType.JOINED)\n";
-			if( c.getParent() != null ) {
-				code += "@PrimaryKeyJoinColumn(name=\"" + c.getPkArray().get(0).getImplName().toLowerCase() +"\")\n";			
-			}
-		}
-		
+				
 		code += "public class " + c.getImplName();
 		
 		if( c.getParent() != null ) {
 			code += " extends " + c.getParent().getImplName();		
 		} else {
 			code += " implements Serializable";		
-			
-			if( c.getImplName().endsWith("_qo") ) 
-				code += ", VpdmfQueryObject";
-			else 
-				code += ", VpdmfObject";
-
-			
 		}
 
 		code += " {\n";
@@ -464,11 +383,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 				
 		code += "\nimport java.util.*;\n";
 
-		if( c.getImplName().endsWith("_qo") ) 
-			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfQueryObject;\n";
-		else 
-			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfObject;\n";
-
 		code += "import java.io.Serializable;\n\n";
 
 		if( annotFlag ) 
@@ -483,13 +397,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		if( c.getParent() != null ) {
 			code += " extends " + c.getParent().getImplName();		
 		} else {
-			code += " implements Serializable";		
-			
-			if( c.getImplName().endsWith("_qo") ) 
-				code += ", VpdmfQueryObject";
-			else 
-				code += ", VpdmfObject";
-				
+			code += " implements Serializable";						
 		}
 
 		code += " {\n";
@@ -614,23 +522,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		
 		String s = a.getImplName();
 		
-		if( annotFlag ) {
-			if( a.getParentClass().getPkArray().contains(a) ) {
-				code += "	@Id\n";	
-				code += "	@GeneratedValue(strategy = GenerationType.IDENTITY)\n";
-			} else if( !a.getType().isDataType() ) {
-				
-				//code += "	@ManyToOne(cascade=CascadeType.ALL)\n";
-				//code += "	@JoinColumn(name=" + a.getImplName() + "_id)\n";
-				// Check to make sure that we never have this situation. 
-				throw new Exception(a.getImplName() + " should be implemented by a role: " + a.getFkRole().getBaseName() );
-			
-			} else if( a.getType().getBaseName().equals("blob") ||
-					a.getType().getBaseName().equals("longString")) {
-				code += "	@Lob\n";			
-			}
-		}
-		
 		code += "	public " + a.getType().getImplName() + " get" + this.generateStemString(a) + "() {\n";
 		
 		code += "		return this." + s + ";\n";
@@ -671,67 +562,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		String s = r.getImplName();
 		
 		UMLrole or = r.otherRole();
-						
-		if( annotFlag ) {
-			// One to one
-			if( or.getMult_upper() != -1 && r.getMult_upper() != -1 ) {
-				code += "	@OneToOne(cascade=CascadeType.ALL)\n";
-				code += "	@JoinColumn(name=\"" + r.getFkArray().get(0).getImplName() + "\")\n";			
-			} 
-			// One to many
-			else if( r.getImplementz() == null && or.getMult_upper() != -1 && r.getMult_upper() == -1 ) {
-				
-				if( !or.getNavigable() )
-					throw new Exception(or.getDirectClass().getImplName() + "." + r.getImplName() 
-							+ " is one-to-many with no link back to anchor the id value.");
-	
-				code += "	@OneToMany(mappedBy = \"" + or.getImplName() + "\", cascade = CascadeType.ALL)\n";
-			} 
-			// Many to one
-			else if( r.getImplementz() == null && or.getMult_upper() == -1 && r.getMult_upper() != -1 ) {
-				code += "	@ManyToOne(cascade=CascadeType.ALL)\n";
-				code += "	@JoinColumn(name=\"" + r.getFkArray().get(0).getImplName() + "\")\n";			
-			}
-			// Many to many
-			else if( r.getImplementz() != null ) {
-				UMLrole rr = r.getImplementz();
-				
-				Iterator<UMLrole> rIt = rr.getImplementedBy().iterator();
-				UMLrole farSideRole = null;
-				while( rIt.hasNext() ) {
-					UMLrole rrr = rIt.next();
-					if(!r.equals(rrr)){
-						farSideRole = rrr.otherRole();
-						break;
-					}
-				}
-							
-				if( r.getAss().getIsNew() ) {
-	
-					code += "	@ManyToMany(targetEntity=" + rr.getDirectClass().getImplName() + ".class,cascade=CascadeType.ALL)\n";
-					code += "	@JoinTable(name=\"" + r.getDirectClass().getImplName() + "\",";
-					code += "joinColumns=@JoinColumn(name=\"" + r.getFkArray().get(0).getImplName() + "\"),";
-					code += "inverseJoinColumns=@JoinColumn(name=\"" + farSideRole.getFkArray().get(0).getImplName() + "\"))\n";
-					//code += "	@org.hibernate.annotations.IndexColumn(name=\"" + r.getImplName() + "_order\")\n";
-					
-					r.getAss().setIsNew(false);
-					
-				} else {
-	
-					code += "	@ManyToMany(mappedBy=\"" + or.getImplName() + "\",targetEntity=" 
-							+ r.getDirectClass().getImplName() 
-							+ ".class,cascade=CascadeType.ALL)\n";
-					
-				}
-				
-			} else {
-				throw new Exception(or.getDirectClass().getImplName() + "." + r.getImplName() 
-							+ " is not handled.");
-
-			}
-		
-		}		
-		
+								
 		code += "	public ";
 		
 		if( r.getMult_upper() == -1 && r.getImplementz() == null) {
@@ -950,32 +781,11 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 
 	}		
 
-	
-	// FIXME: Add dependency to vpdmf-jpa.jar project instead of embedding code for edu.isi.bmkeg.vpdmf.model 
-	//        classes in every domain model.
-	// This is needed because the vpdmf system needs to access the ViewTable class which has to be obtained
-	// from the vpdmf-jpa project.
-	public void buildJpaMavenProject(File srcJarFile, File jarFile, 
+
+	public void buildMavenProject(File srcJarFile, File jarFile, 
 			String group, String artifactId, String version,
 			String bmkegParentVersion) throws Exception {
 
-		this.buildJpaMavenProject(srcJarFile, jarFile, 
-				group, artifactId, version,
-				bmkegParentVersion,
-				true);
-		
-	}
-	
-	// FIXME: Add dependency to vpdmf-jpa.jar project instead of embedding code for edu.isi.bmkeg.vpdmf.model 
-	//        classes in every domain model.
-	// This is needed because the vpdmf system needs to access the ViewTable class which has to be obtained
-	// from the vpdmf-jpa project.
-	public void buildJpaMavenProject(File srcJarFile, File jarFile, 
-			String group, String artifactId, String version,
-			String bmkegParentVersion,
-			Boolean buildQuestions) throws Exception {
-		
-		this.buildQuestions = buildQuestions;
 		
 		UMLmodel m = this.getUmlModel();
 		
@@ -1059,16 +869,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "		</plugins>\n";
 		pom += "	</build>\n";
 		pom += "	<dependencies>\n";
-		pom += "		<dependency>\n";
-		pom += "			<groupId>edu.isi.bmkeg</groupId>\n";
-		pom += "			<artifactId>vpdmfCore</artifactId>\n";
-		pom += "			<scope>provided</scope>\n";		
-		pom += "		</dependency>\n";
-		pom += "		<dependency>\n";
-		pom += "			<groupId>org.hibernate.javax.persistence</groupId>\n";
-		pom += "			<artifactId>hibernate-jpa-2.0-api</artifactId>\n";
-		pom += "			<scope>provided</scope>\n";		
-		pom += "		</dependency>\n";
 		pom += "	</dependencies>\n";
 		pom += "</project>\n";
 
@@ -1155,6 +955,95 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 
 	public void setJavaLookupTable(Map<String, String> javaLookupTable) {
 		this.javaLookupTable = javaLookupTable;
+	}
+	
+	/**
+	 * Used to convert a model to generate 'QueryObjects'
+	 * - move all classes in packages named '.model.' to a sub-package named '.model.qo'
+	 * - rename all classes to <STEM>_qo
+	 * @throws Exception
+	 */
+	public void convertToPojoObjects() throws Exception {
+				
+		Map<String, UMLpackage> pkgMap = this.getUmlModel().listPackages("\\.model");
+		Iterator<String> pIt = pkgMap.keySet().iterator();
+		while(pIt.hasNext()) {
+			String addr = pIt.next();
+			UMLpackage p = pkgMap.get(addr);
+			addr = addr.substring(2,addr.length());
+			if( addr.endsWith(".model") ) {
+				UMLpackage parent = p.getParent();
+				
+				// add a new package into the hierarchy
+				UMLpackage p2 = parent.addNewChildPackage("model");
+
+				p.setParent(p2);
+				p2.getChildren().add(p);
+				parent.getChildren().remove(p);
+				p.setBaseName("pojo");
+				p.setImplName("pojo");
+				p.computePackageAddress();
+			}
+		}
+		
+		/*
+		 * Don't change the names
+		 *  
+		 * Map<String, UMLclass> classMap = this.getUmlModel().listClasses("\\.model\\.");
+		Iterator<String> cIt = classMap.keySet().iterator();
+		while(cIt.hasNext()) {
+			String addr = cIt.next();
+			UMLclass c = classMap.get(addr);
+			c.setBaseName(c.getBaseName() + "_pojo");
+			c.setImplName(c.getImplName() + "_pojo");
+			c.computeClassAddress();
+		}*/
+		
+	}
+	
+	/**
+	 * Used to convert a model back from 'QueryObjects'
+	 * - move all classes in packages named '.model.qo.' to the parent '.model.'
+	 * - rename all classes to <STEM>
+	 * @throws Exception
+	 */
+	public void convertFromPojoObjects() throws Exception {
+		
+		Map<String, UMLpackage> pkgMap = this.getUmlModel().listPackages("\\.model\\.");
+		Iterator<String> pIt = pkgMap.keySet().iterator();
+		while(pIt.hasNext()) {
+			String addr = pIt.next();
+			UMLpackage p = pkgMap.get(addr);
+			addr = addr.substring(2,addr.length());
+			if( addr.endsWith(".model.pojo") ) {
+				UMLpackage parent = p.getParent();
+				if( !parent.getBaseName().equals("model") ) {
+					throw new Exception("pojo specification is broken: " + addr);
+				}
+				UMLpackage p2 = parent.getParent();
+				p.setParent(p2);
+				p2.getChildren().remove(parent);
+				p2.getChildren().add(p);
+				this.getUmlModel().getItems().remove(parent.getUuid());
+				parent.setModel(null);
+				p.setBaseName("model");
+				p.setImplName("model");
+				p.computePackageAddress();
+			}
+		}
+		
+		/*Map<String, UMLclass> classMap = this.getUmlModel().listClasses("\\.model\\.");
+		Iterator<String> cIt = classMap.keySet().iterator();
+		while(cIt.hasNext()) {
+			String addr = cIt.next();
+			UMLclass c = classMap.get(addr);
+			if( addr.endsWith("_pojo") ) {
+				c.setBaseName(c.getBaseName().substring(0, c.getBaseName().length()-3));
+				c.setImplName(c.getImplName().substring(0, c.getImplName().length()-3));
+				c.computeClassAddress();
+			}
+		}*/
+		
 	}
 	
 	

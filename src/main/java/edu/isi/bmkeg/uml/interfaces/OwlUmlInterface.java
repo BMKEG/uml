@@ -13,11 +13,14 @@ import java.util.Set;
 import javassist.ClassPool;
 
 import org.apache.log4j.Logger;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 
 import edu.isi.bmkeg.uml.model.UMLattribute;
 import edu.isi.bmkeg.uml.model.UMLclass;
 import edu.isi.bmkeg.uml.model.UMLmodel;
+import edu.isi.bmkeg.uml.model.UMLpackage;
 import edu.isi.bmkeg.uml.model.UMLrole;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 import edu.isi.bmkeg.uml.utils.OwlAPIUtility;
@@ -37,8 +40,8 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 
 	private static String[] owlTargetTypes = new String[] { "serial", "byte",
 			"short", "int", "long", "float", "double", "boolean", "char",
-			"String", "String", "String", "blob", "image", "date",
-			"timestamp", "url" };
+			"String", "String", "String", "blob", "image", "date", "timestamp",
+			"url" };
 
 	public OwlUmlInterface() throws Exception {
 
@@ -69,16 +72,23 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 			owlFile.delete();
 		}
 
-		OwlUmlInterface oui = new OwlUmlInterface();
-		oui.setUmlModel(m);
+		this.setUmlModel(m);
 
 		m.cleanModel();
-		oui.convertAttributes();
+		this.convertAttributes();
+		this.implementAllRoles(pkgPattern);
 
 		OwlAPIUtility owlUtil = new OwlAPIUtility();
 		OWLOntology o = owlUtil.createOntology(uri, owlFile.getAbsolutePath());
 		owlUtil.setPrefix(uri);
 
+		Map<String, UMLpackage> pkgMap = m.listPackages(pkgPattern);
+		for( String key : pkgMap.keySet() ) {
+			UMLpackage pkg = pkgMap.get(key);
+			if( pkg.getUri() != null )
+				owlUtil.setPrefix(pkg.readPrefix() + ":", pkg.getUri().toString());
+		}
+		
 		Map<String, UMLclass> classMap = m.listClasses(pkgPattern);
 
 		//
@@ -98,8 +108,8 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 				continue;
 			}
 
-			owlUtil.addClass(c.readClassAddress(), o);
-			owlUtil.addNameComment(c.readClassAddress(), c.getBaseName(), o);
+			owlUtil.addClass(c.readPrefix() + ":" + c.getBaseName(), o);
+			owlUtil.addNameComment(c.getBaseName(), c.getBaseName(), o);
 
 		}
 
@@ -126,8 +136,9 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 					continue;
 				}
 
-				owlUtil.addSubClassToClass(parent.readClassAddress(),
-						c.readClassAddress(), o);
+				owlUtil.addSubClassToClass(
+						parent.readPrefix() + ":" + parent.getBaseName(),
+						c.readPrefix() + ":" + c.getBaseName(), o);
 
 			}
 
@@ -164,7 +175,23 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 		owlUtil.saveOntology(o);
 
 	}
-	
 
+	private void implementAllRoles(String pkgPattern) {
+
+		Map<String, UMLclass> classMap = this.getUmlModel().listClasses(pkgPattern);
+
+		Iterator<String> cIt = classMap.keySet().iterator();
+		while (cIt.hasNext()) {
+			String addr = cIt.next();
+			UMLclass c = classMap.get(addr);
+
+			Iterator<UMLrole> rIt = c.getAssociateRoles().values().iterator();
+			while (rIt.hasNext()) {
+				UMLrole r = rIt.next();
+				r.setToImplement(true);
+			}
+		}
+
+	}
 
 }

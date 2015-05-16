@@ -976,7 +976,6 @@ public class UMLmodel implements Serializable {
 			
 	}
 	
-	
 	/**
 	 * Used to convert a model to generate 'QueryObjects'
 	 * - move all classes in packages named '.model.' to a sub-package named '.model.qo'

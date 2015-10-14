@@ -12,11 +12,13 @@ public class UMLDataConverters {
 
 	public static String convertToString(UMLattribute att, Object data)
 			throws Exception {
+		
 		if (data == null) {
 			return null;
 		}
 
-		if (data.getClass().getName().endsWith(".Vector")
+		if (data.getClass().isArray() 
+				|| data.getClass().getName().endsWith(".Vector")
 				|| data.getClass().getName().endsWith(".SparseObjectMatrix1D")
 				|| data.getClass().getName().endsWith(".DenseObjectMatrix1D")) {
 			return null;
@@ -118,8 +120,12 @@ public class UMLDataConverters {
 			}
 
 		} catch (Exception e) {
+			
+			e.printStackTrace();
 
-			throw new Exception("Errors converting data of type " + type);
+			throw new Exception("Errors converting data of type " + type +
+					" from value: " + (data.toString()) + 
+					" for attribute: " + att.readCleanAddress());
 
 		}
 

@@ -175,7 +175,7 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 		this.convertAttributes();
 		String dAddr = dumpDir.getPath();
 
-		List<String> keys = new ArrayList<String>(this.getUmlModel().listPackages("\\.model\\.").keySet());
+		List<String> keys = new ArrayList<String>(this.getUmlModel().listPackages("\\.model[\\.$]").keySet());
 		
 		Collections.sort(keys);
 

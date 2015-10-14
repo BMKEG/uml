@@ -278,9 +278,15 @@ public class UMLclass extends UMLitem {
   	}
 
 	public String readUrl() throws Exception {
-		URI uri = Converters.convertUmlAddressToUri(this.readClassAddress());
+		URI pkgUri = this.getPkg().readUri();
+		
+		if( pkgUri == null )
+			return "";
+		
+		URI uri = new URI(pkgUri.toString() + "#" + this.getBaseName());
 		String url = uri.toURL().toString();
 		return url;
+		
 	}
 	
 	public String readPrefix() throws Exception {

@@ -154,20 +154,50 @@ public class UMLpackage extends UMLitem {
 	}
 
 	public URI readUri() throws Exception {
-		if( this.getUri() != null ) 
-			return this.getUri();
-		else 
-			return Converters.convertUmlAddressToUri(this.readPackageAddress());
+
+		UMLpackage ancestor = null;
+		UMLpackage temp = this;
+		while( temp.getParent() != null ) {
+			if( temp.getParent().getUri() != null ) {
+				ancestor = temp.getParent();
+				break;
+			}
+			temp = temp.getParent();
+		}
+		
+		URI uri = this.getUri();
+		if(uri == null) {
+			
+			if( ancestor != null) {
+				
+				String uriStr = "";
+				temp = this;
+				while( temp != ancestor && temp.getParent() != null ) {
+					uriStr = temp.getBaseName() + "/" + uriStr;
+					temp = temp.getParent();
+				}
+				uriStr = (ancestor.getUri().toString() + "/" + uriStr);
+				uri = new URI(uriStr.substring(0, uriStr.length()-1));
+				
+			} 
+			
+		}
+		
+		return uri;
+		
 	}
 
 	public String readPrefix() throws Exception {
 
 		URI uri = this.readUri();
 		
+		if( uri == null ) 
+			return "";
+		
 		String prefix = "";		
 		if( uri.getPath().length() > 0 ){
 			String p = uri.getPath();		
-			prefix = p.substring(p.lastIndexOf("/"), p.length());
+			prefix = p.substring(p.lastIndexOf("/")+1, p.length());
 		} else {
 			prefix = uri.getHost();		
 			prefix = prefix.replaceAll("www.", "");

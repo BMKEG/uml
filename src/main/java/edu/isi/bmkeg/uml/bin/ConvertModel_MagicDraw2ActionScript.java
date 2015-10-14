@@ -11,7 +11,7 @@ import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 
 public class ConvertModel_MagicDraw2ActionScript {
 	
-	public static String USAGE = "arguments: <directory> <MagicDraw-file> <zip-file>"; 
+	public static String USAGE = "arguments: <MagicDraw-path> <src-output-path>"; 
 	
 	/**
 	 * Main method to build take a MagicDraw File and dump out a set of ActionScript Model files
@@ -19,21 +19,15 @@ public class ConvertModel_MagicDraw2ActionScript {
 	 */
 	public static void main(String[] args) {
 		
-		if( args.length != 3 ) {
+		if( args.length != 2 ) {
 			System.err.println(USAGE);
 			System.exit(-1);
 		}
 		
-		File loc = new File(args[0]);
-		File magic = new File(loc.getPath() + "/" + args[0]);	
-		File zip = new File(loc.getPath() + "/" + args[1]);	
+		File magic = new File(args[0]);	
+		File zip = new File(args[1]);	
 		
 		String pkgPattern = ".model.";
-			
-		if( zip.exists() ) {
-			System.err.println(args[1]+ " already exists. Overwriting old version.");
-			zip.delete();
-		}
 		
 		UMLModelSimpleParser p = new UMLModelSimpleParser(UMLmodel.XMI_MAGICDRAW);
 		

@@ -87,7 +87,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		// the parser will use a package with a null uuid when classes
 		// are in the top level
 		if (currentMatch.endsWith(divider + "packagedElement") && uuid != null
-				&& xmiType != null && xmiType.equals("uml:Package")) {
+				&& xmiType != null && xmiType.equals("uml:Package") 
+				&& attrs.containsKey("name")) {
 
 			UMLpackage thisPack = new UMLpackage(uuid);
 			try {
@@ -111,7 +112,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			// System.out.println("pkg:" + thisPack.getPkgAddress());
 
 		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:Class")) {
+				&& xmiType != null && xmiType.equals("uml:Class")
+				&& attrs.containsKey("name")) {
 
 			String id = attrs.get("xmi.id");
 
@@ -137,7 +139,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			// System.out.println("class:" + thisClass.getClassAddress());
 
 		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:DataType")) {
+				&& xmiType != null && xmiType.equals("uml:DataType")
+				&& attrs.containsKey("name")) {
 
 			String id = attrs.get("xmi.id");
 
@@ -162,7 +165,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			String addr = thisClass.getClassAddress();
 
 		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:AssociationClass")) {
+				&& xmiType != null && xmiType.equals("uml:AssociationClass")
+				&& attrs.containsKey("name")) {
 
 			thisClass = new UMLclass();
 			try {
@@ -205,13 +209,13 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			thisClass.setLinkAssociation(thisAssoc);
 			thisAssoc.setLinkClass(thisClass);
 
-		} else if (currentMatch.endsWith(divider + "upperValue")
+		} else if (currentMatch.endsWith( "ownedAttribute" + divider + "upperValue")
 				&& thisRole != null) {
 
 			int upper = Integer.valueOf(attrs.get("value")).intValue();
 			thisRole.setMult_upper(upper);
 
-		} else if (currentMatch.endsWith(divider + "lowerValue")
+		} else if (currentMatch.endsWith("ownedAttribute" + divider + "lowerValue")
 				&& thisRole != null) {
 
 			String v = attrs.get("value");
@@ -353,7 +357,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		 */
 		else if (currentMatch.endsWith(divider + "ownedAttribute")
 				&& xmiType != null && xmiType.equals("uml:Property")
-				&& association == null && thisClass != null) {
+				&& association == null && thisClass != null
+				&& attrs.containsKey("name")) {
 
 			thisAttr = new UMLattribute(uuid);
 			try {

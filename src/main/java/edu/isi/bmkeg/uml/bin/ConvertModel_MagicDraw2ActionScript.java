@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.isi.bmkeg.uml.interfaces.ActionscriptInterface;
+import edu.isi.bmkeg.uml.builders.ActionscriptBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 
@@ -37,7 +37,7 @@ public class ConvertModel_MagicDraw2ActionScript {
 			
 			UMLmodel m = p.getUmlModels().get(0);
 
-			ActionscriptInterface asi = new ActionscriptInterface();
+			ActionscriptBuilder asi = new ActionscriptBuilder();
 			asi.setUmlModel(m);
 					
 			asi.generateActionscriptForModel(zip);

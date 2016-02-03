@@ -1,29 +1,20 @@
 package edu.isi.bmkeg.uml.interfaces;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import edu.isi.bmkeg.uml.builders.ActionscriptBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
-import edu.isi.bmkeg.utils.springContext.AppContext;
+import junit.framework.TestCase;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/edu/isi/bmkeg/uml/sources/appCtx-UMLTestNoJPA.xml"})
-public class ActionscriptInterfaceTest {
+public class ActionscriptInterfaceTest extends TestCase {
 
-	ApplicationContext ctx;
-	
-	ActionscriptInterface asi;
+	ActionscriptBuilder asi;
 	
 	File magic;
 	File zip, swc;
@@ -31,8 +22,8 @@ public class ActionscriptInterfaceTest {
 	@Before
 	public void setUp() throws Exception {
         
-		ctx = AppContext.getApplicationContext();
-		magic = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile();	
+		magic = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile());	
 		zip = new File("target" + "/ooevv-asModel.zip");	
 		swc = new File("target" + "/ooevv-asModel.swc");
 		
@@ -41,7 +32,7 @@ public class ActionscriptInterfaceTest {
 		
 		UMLmodel m = p.getUmlModels().get(0);
 	
-		asi = new ActionscriptInterface();
+		asi = new ActionscriptBuilder();
 		asi.setUmlModel(m);
 		
 	}

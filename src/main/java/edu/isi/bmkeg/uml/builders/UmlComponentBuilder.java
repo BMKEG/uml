@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.File;
 import java.util.HashSet;
@@ -11,7 +11,7 @@ import edu.isi.bmkeg.uml.model.UMLclass;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.model.UMLrole;
 
-public abstract class UmlComponentInterface implements ImplConvert  {
+public abstract class UmlComponentBuilder implements ImplConvert  {
 	
 	public static int FORWARD = 0;
 	public static int REVERSE = 1;
@@ -44,7 +44,7 @@ public abstract class UmlComponentInterface implements ImplConvert  {
 	
 	private Set<String> stopwords = new HashSet<String>();
 	
-	public UmlComponentInterface () {
+	public UmlComponentBuilder () {
 	}
 	
 	public void setRootDirectory(File rootDirectory) {

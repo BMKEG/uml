@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,6 +20,19 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import com.google.common.io.Files;
+
+import edu.isi.bmkeg.uml.model.UMLattribute;
+import edu.isi.bmkeg.uml.model.UMLclass;
+import edu.isi.bmkeg.uml.model.UMLitem;
+import edu.isi.bmkeg.uml.model.UMLmodel;
+import edu.isi.bmkeg.uml.model.UMLrole;
+import edu.isi.bmkeg.utils.Converters;
+import edu.isi.bmkeg.utils.MapCreate;
+import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -28,21 +41,7 @@ import javassist.CtNewMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-
-import com.google.common.io.Files;
-
-import edu.isi.bmkeg.uml.model.UMLattribute;
-import edu.isi.bmkeg.uml.model.UMLclass;
-import edu.isi.bmkeg.uml.model.UMLmodel;
-import edu.isi.bmkeg.uml.model.UMLpackage;
-import edu.isi.bmkeg.uml.model.UMLrole;
-import edu.isi.bmkeg.utils.Converters;
-import edu.isi.bmkeg.utils.MapCreate;
-import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
-
-public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class JavaPojoUmlBuilder extends UmlComponentBuilder implements ImplConvert {
 	
 	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.JavaPojoUmlInterface");
 
@@ -81,7 +80,7 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 		"String", "String", "String",
 		"String", "String", "String" };
 
-	public JavaPojoUmlInterface() throws Exception {
+	public JavaPojoUmlBuilder() throws Exception {
 		
 		this.buildLookupTable();
 
@@ -90,10 +89,10 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 	public void buildLookupTable() throws Exception {
 		
 		javaLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, javaTargetTypes));
 		
 		queryObjectLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaQuestionTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, javaQuestionTargetTypes));
 		
 		this.setLookupTable(javaLookupTable);
 		
@@ -108,6 +107,8 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 		Map<String,File> filesInZip = new HashMap<String,File>();
 		
 		this.convertAttributes();
+	
+		this.getUmlModel().convertAllItemsFromDashToCamelCase();
 		
 		String dAddr = dumpDir.getAbsolutePath();
 
@@ -1071,6 +1072,5 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 	public void setBuildQuestions(boolean buildQuestions) {
 		this.buildQuestions = buildQuestions;
 	}
-	
 	
 }

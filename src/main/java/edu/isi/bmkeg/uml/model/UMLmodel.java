@@ -20,7 +20,7 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 
-import edu.isi.bmkeg.uml.interfaces.UmlComponentInterface;
+import edu.isi.bmkeg.uml.builders.UmlComponentBuilder;
 
 public class UMLmodel implements Serializable {
 
@@ -358,7 +358,7 @@ public class UMLmodel implements Serializable {
 		 * (String, Blob, etc).
 		 */
 
-		String[] types = UmlComponentInterface.baseAttrTypes;
+		String[] types = UmlComponentBuilder.baseAttrTypes;
 		for (int i = 0; i < types.length; i++) {
 			addType(types[i]);
 		}
@@ -611,6 +611,56 @@ public class UMLmodel implements Serializable {
 		return hits;
 
 	}
+	
+	
+	public void convertToObjectOrientedImplementation() throws Exception {
+		this.convertToObjectOrientedImplementation(".");
+	}
+	
+	public void convertToObjectOrientedImplementation(String pkgPattern) throws Exception {
+
+		//
+		// Derived association classes
+		//
+		Iterator<UMLassociation> assIt = this.listAssociations(pkgPattern).iterator();
+		while (assIt.hasNext()) {
+			UMLassociation ass = assIt.next();
+
+			if (!ass.getIsNew())
+				continue;
+
+			UMLrole r1 = ass.getRole1();
+			UMLrole r2 = ass.getRole2();
+
+			if (ass.getDesigned() && ass.getLinkClass() != null) {
+				ass.generateDerivedAssociationAndClasses();
+			}
+
+		}
+ 
+		//
+		// Derived attribute-based reference
+		//
+		for( UMLclass c : this.listClasses(pkgPattern).values() ) {
+
+			for( UMLattribute a : c.getAttributes() ) {
+
+				if (!a.getType().isDataType()) {
+					if (!a.getIsNew())
+						continue;
+					a.generateAttributeBasedReference();
+				}
+			}
+		}
+
+		// Convert implementation of all current items in model to isNew = FALSE
+		for( UMLitem i : this.getItems().values() ) {
+			i.setIsNew(false);
+		}
+
+	}
+	
+	
 
 	public void convertToRelationalImplementation() throws Exception {
 		this.convertToRelationalImplementation(".");
@@ -976,6 +1026,78 @@ public class UMLmodel implements Serializable {
 			
 	}
 	
+	public UMLpackage moveToSubPackage(UMLpackage p, String subName) throws Exception {
+
+		Set<UMLclass> classesToChange = new HashSet<UMLclass>();
+		
+		UMLpackage p2 = p.addNewChildPackage(subName);
+		p2.computePackageAddress();
+		Set<UMLclass> cSet = p.getClasses();
+		p.setClasses(new HashSet<UMLclass>());
+		p2.setClasses(cSet);
+		for(UMLclass c : cSet) {
+			c.setPkg(p2);
+		}
+		classesToChange.addAll(cSet);
+				
+		for( UMLpackage child : p.getChildren() ) {
+
+			if( child.equals(p2) ) 
+				continue;
+			
+			child.setParent(p2);
+			p2.getChildren().add(child);
+			p.getChildren().remove(child);
+			child.computePackageAddress();
+
+		}
+
+		Map<String, UMLclass> cMap = 
+				this.listClasses(p.readPackageAddress() + "\\.*");
+		for(UMLclass c : cMap.values() ) {
+			c.computeClassAddress();
+		}
+		
+		return p2;
+		
+	}
+	
+	/** 
+	 * Moves a package to replace its parent, undoing the moveToSubPackage process.
+	 * @param p
+	 * @throws Exception
+	 */
+	public UMLpackage moveBackFromSubPackage(UMLpackage p) throws Exception {
+		
+		UMLpackage parent = p.getParent();
+
+		Set<UMLclass> cSet = p.getClasses();
+		p.setClasses(new HashSet<UMLclass>());
+		parent.setClasses(cSet);
+		for(UMLclass c : cSet) {
+			c.setPkg(parent);
+		}
+		
+		for( UMLpackage cPkg : p.getChildren() ) {
+			parent.getChildren().add(cPkg);
+			cPkg.setParent(parent);
+		}
+		p.getChildren().clear();
+		
+		this.getItems().remove(p.getUuid());
+		parent.getChildren().remove(p);
+		p.setParent(null);
+		p.setModel(null);
+		
+		Map<String, UMLclass> cMap = 
+				this.listClasses(parent.readPackageAddress() + "\\.*");
+		for(UMLclass c : cMap.values() ) {
+			c.computeClassAddress();
+		}
+		return p;
+				
+	}
+	
 	/**
 	 * Used to convert a model to generate 'QueryObjects'
 	 * - move all classes in packages named '.model.' to a sub-package named '.model.qo'
@@ -1061,6 +1183,24 @@ public class UMLmodel implements Serializable {
 			}
 		}
 		
+	}
+	
+	public void convertAllItemsFromDashToCamelCase() throws Exception{
+
+		for( UMLitem itm :this.getItems().values() ) {
+			int p = itm.getImplName().lastIndexOf("-");
+			int c = 0;
+			while( p != -1 && c < 20 ){
+				String s = itm.getImplName().substring(0, p) + 
+						itm.getImplName().substring(p+1, p+2).toUpperCase()+
+						itm.getImplName().substring(p+2, itm.getImplName().length());
+				itm.setImplName(s);
+				p = itm.getImplName().lastIndexOf("-");
+				c++;
+			}
+			if( c>19 ) 
+				throw new Exception("Error converting dashes to camel case");		
+		}
 	}
 
 }

@@ -211,5 +211,9 @@ public class UMLpackage extends UMLitem {
 		return prefix;
 	
 	}
+	
+	public String toString() {
+		return this.getPkgAddress();
+	}
 
 }

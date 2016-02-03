@@ -7,7 +7,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import edu.isi.bmkeg.uml.interfaces.OwlUmlInterface;
+import edu.isi.bmkeg.uml.builders.OwlUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 
@@ -84,7 +84,7 @@ public class ConvertModel_MagicDraw2Owl {
 
 		UMLmodel m = p.getUmlModels().get(0);
 
-		OwlUmlInterface oui = new OwlUmlInterface();
+		OwlUmlBuilder oui = new OwlUmlBuilder();
 		oui.setUmlModel(m);
 
 		oui.saveUmlAsOwl(owl, ns, options.pkgPattern);

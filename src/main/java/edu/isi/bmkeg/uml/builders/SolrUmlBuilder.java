@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.util.HashMap;
 
@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 import edu.isi.bmkeg.utils.MapCreate;
 
-public class SolrUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class SolrUmlBuilder extends UmlComponentBuilder implements ImplConvert {
 	
 	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.SolrUmlInterface");
 
@@ -35,7 +35,7 @@ public class SolrUmlInterface extends UmlComponentInterface implements ImplConve
         "string",	// "url"
 	};
 
-	public SolrUmlInterface() throws Exception {
+	public SolrUmlBuilder() throws Exception {
 
 		this.buildLookupTable();
 
@@ -44,7 +44,7 @@ public class SolrUmlInterface extends UmlComponentInterface implements ImplConve
 	public void buildLookupTable() throws Exception {
 		
 		this.setLookupTable(new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaTargetTypes)));
+				UmlComponentBuilder.baseAttrTypes, javaTargetTypes)));
 				
 	}
 	

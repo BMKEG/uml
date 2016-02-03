@@ -438,5 +438,4 @@ public class UMLclass extends UMLitem {
 		return this.readClassAddress();
 	}
 	
-  	
  }

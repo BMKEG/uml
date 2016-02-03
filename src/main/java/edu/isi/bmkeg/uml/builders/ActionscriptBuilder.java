@@ -1,13 +1,10 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,8 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -33,9 +28,9 @@ import edu.isi.bmkeg.utils.MapCreate;
 import edu.isi.bmkeg.utils.TextUtils;
 import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
 
-public class ActionscriptInterface extends UmlComponentInterface implements ImplConvert {	
+public class ActionscriptBuilder extends UmlComponentBuilder implements ImplConvert {	
 	
-	Logger log = Logger.getLogger(ActionscriptInterface.class);
+	Logger log = Logger.getLogger(ActionscriptBuilder.class);
 	
 	private boolean buildQuestions = false;
 	
@@ -69,7 +64,7 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 		"String", "String", "String",
 		"String", "String", "String" };
 
-	public ActionscriptInterface() throws Exception {
+	public ActionscriptBuilder() throws Exception {
 
 		this.buildLookupTable();
 
@@ -78,10 +73,10 @@ public class ActionscriptInterface extends UmlComponentInterface implements Impl
 	public void buildLookupTable() throws Exception {
 		
 		asLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, asTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, asTargetTypes));
 		
 		queryObjectLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, asQuestionTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, asQuestionTargetTypes));
 		
 		this.setLookupTable(asLookupTable);
 

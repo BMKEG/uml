@@ -17,7 +17,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import com.google.common.io.Files;
 
-import edu.isi.bmkeg.uml.interfaces.MysqlUmlInterface;
+import edu.isi.bmkeg.uml.builders.MysqlUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.utils.Converters;
 
@@ -114,7 +114,7 @@ public class UMLArchiveFileBuilder {
 		//
 		// Save the sql to this location too.
 		//
-		MysqlUmlInterface mysql = new MysqlUmlInterface();
+		MysqlUmlBuilder mysql = new MysqlUmlBuilder();
 		mysql.setUmlModel(m);
 
 		String sql = mysql.generateSqlForModel();

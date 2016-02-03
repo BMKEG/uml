@@ -9,22 +9,15 @@ import java.util.Iterator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import edu.isi.bmkeg.uml.interfaces.ActionscriptInterface;
-import edu.isi.bmkeg.uml.interfaces.JavaUmlInterface;
-import edu.isi.bmkeg.uml.interfaces.MysqlUmlInterface;
+import edu.isi.bmkeg.uml.builders.ActionscriptBuilder;
+import edu.isi.bmkeg.uml.builders.JavaUmlBuilder;
+import edu.isi.bmkeg.uml.builders.MysqlUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
-import edu.isi.bmkeg.utils.springContext.AppContext;
+import junit.framework.TestCase;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/edu/isi/bmkeg/uml/sources/appCtx-UMLTestNoJPA.xml"})
-public class VPDMfModel_UMLParse_Test {
+public class VPDMfModel_UMLParse_Test extends TestCase {
 
-	ApplicationContext ctx;
 	UMLmodel m;
 	UMLModelSimpleParser p;
 	
@@ -35,10 +28,12 @@ public class VPDMfModel_UMLParse_Test {
 	@Before
 	public void setUp() throws Exception {
         
-		ctx = AppContext.getApplicationContext();
-		magic = ctx.getResource("classpath:edu/isi/bmkeg/uml/sources/vpdmf-tests/vpdmf_rev.xml").getFile();
-		vpdmf = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/vpdmfUser.xml").getFile();
-		resource = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/resource/resource.xml").getFile();
+		magic = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/sources/vpdmf-tests/vpdmf_rev.xml").getFile());
+		vpdmf = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/vpdmfUser.xml").getFile());
+		resource = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/resource/resource.xml").getFile());
 		
 		zip = new File(magic.getParentFile().getPath() + "/vpdmf_as.zip");
 		zip2 = new File(magic.getParentFile().getPath() + "/kmrgGraph_as.zip");
@@ -73,7 +68,7 @@ public class VPDMfModel_UMLParse_Test {
 		ArrayList<UMLmodel> models = p.getUmlModels();
 		UMLmodel m = models.iterator().next();
 
-		ActionscriptInterface asi = new ActionscriptInterface();
+		ActionscriptBuilder asi = new ActionscriptBuilder();
 		asi.setUmlModel(m);
 				
 //		asi.generateActionscriptForModel(zip, "\\.model(\\.|$)");
@@ -95,13 +90,13 @@ public class VPDMfModel_UMLParse_Test {
 
 		m1.mergeModel(m2);
 
-		MysqlUmlInterface mysql = new MysqlUmlInterface();
+		MysqlUmlBuilder mysql = new MysqlUmlBuilder();
 		mysql.setUmlModel(m1);
 		mysql.convertAttributes();
 		System.out.println("~~~MYSQL~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		System.out.println(m1.debugString());
 		
-		JavaUmlInterface java = new JavaUmlInterface();
+		JavaUmlBuilder java = new JavaUmlBuilder();
 		java.setUmlModel(m1);
 		java.convertAttributes();
 		System.out.println("~~~JAVA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");

@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.isi.bmkeg.uml.interfaces.ActionscriptInterface;
+import edu.isi.bmkeg.uml.builders.ActionscriptBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 import edu.isi.bmkeg.uml.utils.UMLArchiveFileBuilder;

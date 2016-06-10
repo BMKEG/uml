@@ -555,26 +555,29 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 						"uml:Package")) {
 					UMLpackage top = this.getPackage();
 					this.packageStack.remove(top);
-				} else if (currentMatch.endsWith("UML:Package" + divider +
+				} 
+			}
+			else if (currentMatch.endsWith("UML:Package" + divider +
 				  "UML:Namespace.ownedElement" + divider +
 				  "UML:AssociationClass")) {
 				  
-				  UMLclass top = this.getTopClass();
-				  this.classStack.remove(top); thisClass = this.getTopClass();
-				  
-				  thisAssoc = null;
-				 
-				} else if (currentMatch.endsWith("ownedAttribute")) {
+			  UMLclass top = this.getTopClass();
+			  this.classStack.remove(top); 
+			  thisClass = this.getTopClass();
+			  
+			  thisAssoc = null;
+			 
+			} else if (currentMatch.endsWith("ownedAttribute")) {
 
-					if (thisRole != null) {
-						thisRole = null;
-					} else {
-						thisAttr = null;
-					}
-				
+				if (thisRole != null) {
+					thisRole = null;
+				} else {
+					thisAttr = null;
 				}
-				
+			
 			}
+			
+		
 
 		}
 

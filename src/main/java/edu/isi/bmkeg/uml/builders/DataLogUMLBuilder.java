@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ import edu.isi.bmkeg.uml.model.UMLclass;
 import edu.isi.bmkeg.uml.model.UMLrole;
 import edu.isi.bmkeg.utils.MapCreate;
 
-public class DataLogUMLInterface extends UmlComponentInterface implements ImplConvert {
+public class DataLogUMLBuilder extends UmlComponentBuilder implements ImplConvert {
 
 	private static String[] datalogTargetTypes = new String[] {
         "long", 
@@ -34,7 +34,7 @@ public class DataLogUMLInterface extends UmlComponentInterface implements ImplCo
         "URL"
 	};
 
-	public DataLogUMLInterface() throws Exception {
+	public DataLogUMLBuilder() throws Exception {
 
 		this.buildLookupTable();
 
@@ -43,7 +43,7 @@ public class DataLogUMLInterface extends UmlComponentInterface implements ImplCo
 	public void buildLookupTable() throws Exception {
 		
 		this.setLookupTable(new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, datalogTargetTypes)));
+				UmlComponentBuilder.baseAttrTypes, datalogTargetTypes)));
 
 	}
 

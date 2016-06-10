@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,7 +26,7 @@ import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 import edu.isi.bmkeg.uml.utils.OwlAPIUtility;
 import edu.isi.bmkeg.utils.MapCreate;
 
-public class OwlUmlInterface extends UmlComponentInterface implements
+public class OwlUmlBuilder extends UmlComponentBuilder implements
 		ImplConvert {
 
 	Logger log = Logger
@@ -43,7 +43,7 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 			"String", "String", "String", "blob", "image", "date", "timestamp",
 			"url" };
 
-	public OwlUmlInterface() throws Exception {
+	public OwlUmlBuilder() throws Exception {
 
 		this.buildLookupTable();
 
@@ -59,7 +59,7 @@ public class OwlUmlInterface extends UmlComponentInterface implements
 	public void buildLookupTable() throws Exception {
 
 		this.setLookupTable(new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, owlTargetTypes)));
+				UmlComponentBuilder.baseAttrTypes, owlTargetTypes)));
 
 	}
 

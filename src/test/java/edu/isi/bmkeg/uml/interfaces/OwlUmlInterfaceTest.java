@@ -1,41 +1,32 @@
 package edu.isi.bmkeg.uml.interfaces;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import edu.isi.bmkeg.uml.builders.OwlUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
-import edu.isi.bmkeg.utils.springContext.AppContext;
+import junit.framework.TestCase;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/edu/isi/bmkeg/uml/sources/appCtx-UMLTestNoJPA.xml"})
-public class OwlUmlInterfaceTest {
-
-	ApplicationContext ctx;
+public class OwlUmlInterfaceTest extends TestCase {
 	
-	OwlUmlInterface oui;
+	OwlUmlBuilder oui;
 	
 	File ooevvUml, karmaUml;
 	File ooevvOwl, karmaOwl;
 	
 	@Before
 	public void setUp() throws Exception {
-        
-		ctx = AppContext.getApplicationContext();
-
-		ooevvUml = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile();	
+       
+		ooevvUml = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile());	
 		ooevvOwl = new File(ooevvUml.getParent() + "/ooevv.owl");	
 
-		karmaUml = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/karma.xml").getFile();	
+		karmaUml = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/karma.xml").getFile());	
 		karmaOwl = new File(ooevvUml.getParent() + "/karma.owl");	
 		
 			
@@ -54,7 +45,7 @@ public class OwlUmlInterfaceTest {
 		
 		UMLmodel m = p.getUmlModels().get(0);
 	
-		oui = new OwlUmlInterface();
+		oui = new OwlUmlBuilder();
 		oui.setUmlModel(m);
 
 		oui.saveUmlAsOwl(ooevvOwl, "http://bmkeg.isi.edu/ooevv/", ".model.");
@@ -69,7 +60,7 @@ public class OwlUmlInterfaceTest {
 		
 		UMLmodel m = p.getUmlModels().get(0);
 	
-		oui = new OwlUmlInterface();
+		oui = new OwlUmlBuilder();
 		oui.setUmlModel(m);
 
 		oui.saveUmlAsOwl(karmaOwl, "http://www.isi.edu/infoint/", ".model.");

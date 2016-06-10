@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,7 +42,7 @@ import edu.isi.bmkeg.utils.Converters;
 import edu.isi.bmkeg.utils.MapCreate;
 import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
 
-public class JavaUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class JavaUmlBuilder extends UmlComponentBuilder implements ImplConvert {
 	
 	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.JavaUMLInteface");
 
@@ -81,7 +81,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		"String", "String", "String",
 		"String", "String", "String" };
 
-	public JavaUmlInterface() throws Exception {
+	public JavaUmlBuilder() throws Exception {
 		
 		this.buildLookupTable();
 
@@ -98,10 +98,10 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 	public void buildLookupTable() throws Exception {
 		
 		javaLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, javaTargetTypes));
 		
 		queryObjectLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaQuestionTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, javaQuestionTargetTypes));
 
 		this.setLookupTable(javaLookupTable);
 		

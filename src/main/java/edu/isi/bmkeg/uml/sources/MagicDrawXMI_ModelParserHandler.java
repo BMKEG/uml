@@ -1,6 +1,5 @@
 package edu.isi.bmkeg.uml.sources;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -8,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
@@ -21,8 +21,7 @@ import edu.isi.bmkeg.uml.model.UMLrole;
 
 public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
-	Logger log = Logger
-			.getLogger("edu.isi.bmkeg.uml.sources.MagicDrawXMI_ModelParserHandler");
+	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.sources.MagicDrawXMI_ModelParserHandler");
 
 	ArrayList<UMLitem> packageStack = new ArrayList<UMLitem>();
 	ArrayList<UMLclass> classStack = new ArrayList<UMLclass>();
@@ -37,6 +36,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 	HashMap<UMLclass, String> parentChildLookup = new HashMap<UMLclass, String>();
 	HashSet<String> orderedAssocs = new HashSet<String>();
 	HashSet<String> proxyClasses = new HashSet<String>();
+	Set<String> fks = new HashSet<String>();
+	Set<String> pks = new HashSet<String>();
 
 	UMLattribute thisAttr;
 	UMLassociation thisAssoc;
@@ -62,8 +63,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		this.getUmlModel().setName(modelName);
 	}
 
-	public void startElement(String uri, String localName, String qName,
-			Attributes attributes) {
+	public void startElement(String uri, String localName, String qName, Attributes attributes) {
 
 		this.currentMatch += divider + qName;
 		HashMap<String, String> attrs = getAttrs(attributes);
@@ -86,8 +86,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		// the parser will use a package with a null uuid when classes
 		// are in the top level
-		if (currentMatch.endsWith(divider + "packagedElement") && uuid != null
-				&& xmiType != null && xmiType.equals("uml:Package")) {
+		if (currentMatch.endsWith(divider + "packagedElement") && uuid != null && xmiType != null
+				&& xmiType.equals("uml:Package") && attrs.containsKey("name")) {
 
 			UMLpackage thisPack = new UMLpackage(uuid);
 			try {
@@ -110,8 +110,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			// System.out.println(this.currentMatch);
 			// System.out.println("pkg:" + thisPack.getPkgAddress());
 
-		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:Class")) {
+		} else if (currentMatch.endsWith(divider + "packagedElement") && xmiType != null && xmiType.equals("uml:Class")
+				&& attrs.containsKey("name")) {
 
 			String id = attrs.get("xmi.id");
 
@@ -136,8 +136,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 			// System.out.println("class:" + thisClass.getClassAddress());
 
-		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:DataType")) {
+		} else if (currentMatch.endsWith(divider + "packagedElement") && xmiType != null
+				&& xmiType.equals("uml:DataType") && attrs.containsKey("name")) {
 
 			String id = attrs.get("xmi.id");
 
@@ -161,8 +161,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			thisClass.computeClassAddress();
 			String addr = thisClass.getClassAddress();
 
-		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:AssociationClass")) {
+		} else if (currentMatch.endsWith(divider + "packagedElement") && xmiType != null
+				&& xmiType.equals("uml:AssociationClass") && attrs.containsKey("name")) {
 
 			thisClass = new UMLclass();
 			try {
@@ -205,14 +205,12 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			thisClass.setLinkAssociation(thisAssoc);
 			thisAssoc.setLinkClass(thisClass);
 
-		} else if (currentMatch.endsWith(divider + "upperValue")
-				&& thisRole != null) {
+		} else if (currentMatch.endsWith("ownedAttribute" + divider + "upperValue") && thisRole != null) {
 
 			int upper = Integer.valueOf(attrs.get("value")).intValue();
 			thisRole.setMult_upper(upper);
 
-		} else if (currentMatch.endsWith(divider + "lowerValue")
-				&& thisRole != null) {
+		} else if (currentMatch.endsWith("ownedAttribute" + divider + "lowerValue") && thisRole != null) {
 
 			String v = attrs.get("value");
 
@@ -227,8 +225,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		// This is where one end of the role is non-navigable.
 		// This is encoded differently in the XMI model and it's serialization.
 		//
-		else if (currentMatch.endsWith(divider + "ownedAttribute")
-				&& xmiType != null && xmiType.equals("uml:Property")
+		else if (currentMatch.endsWith(divider + "ownedAttribute") && xmiType != null && xmiType.equals("uml:Property")
 				&& association != null && thisClass != null) {
 
 			thisRole = new UMLrole(uuid);
@@ -256,15 +253,13 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			roles2resolve.put(thisRole, attrs.get("type"));
 			rolesAndAssoc.put(uuid, association);
 
-			log.debug("< Role from attribute designation>: "
-					+ thisClass.getBaseName() + "." + thisRole.getBaseName()
+			log.debug("< Role from attribute designation>: " + thisClass.getBaseName() + "." + thisRole.getBaseName()
 					+ " = " + attrs.get("type"));
 
 			// System.out.println("role:" + thisClass.getClassAddress() + "--->"
 			// + thisRole.getBaseName());
 
-		} else if (currentMatch.endsWith(divider + "ownedEnd")
-				&& xmiType != null && xmiType.equals("uml:Property")
+		} else if (currentMatch.endsWith(divider + "ownedEnd") && xmiType != null && xmiType.equals("uml:Property")
 				&& thisAssoc != null) {
 
 			thisRole = new UMLrole(uuid);
@@ -292,8 +287,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			// System.out.println("role:" + thisClass.getClassAddress() + "--->"
 			// + thisRole.getBaseName());
 
-		} else if (currentMatch.endsWith(divider + "packagedElement")
-				&& xmiType != null && xmiType.equals("uml:Association")) {
+		} else if (currentMatch.endsWith(divider + "packagedElement") && xmiType != null
+				&& xmiType.equals("uml:Association")) {
 
 			thisAssoc = new UMLassociation(uuid);
 			try {
@@ -314,6 +309,20 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			assoc2resolve.put(uuid, thisAssoc);
 
 		}
+		// Presence of the 'FK' stereotype applied to an attribute.
+		else if (currentMatch.endsWith(":FK")) {
+
+			String atId = attributes.getValue("base_Property");
+			fks.add(atId);
+
+		}
+		// Presence of the 'FK' stereotype applied to an attribute.
+		else if (currentMatch.endsWith(":PK")) {
+
+			String atId = attributes.getValue("base_Property");
+			pks.add(atId);
+
+		}
 		// Presence of the 'ordered' stereotype applied to an association.
 		else if (currentMatch.endsWith(":ordered") && baseAssoc != null) {
 
@@ -325,9 +334,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 			this.proxyClasses.add(attrs.get("base_Class"));
 
-		} else if (currentMatch.endsWith(divider + "packagedElement" + divider
-				+ "memberEnd")
-				&& thisAssoc != null) {
+		} else if (currentMatch.endsWith(divider + "packagedElement" + divider + "memberEnd") && thisAssoc != null) {
 
 			this.rolesAndAssoc.put(attrs.get("xmi:idref"), thisAssoc.getUuid());
 
@@ -351,9 +358,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		 * The structure identifying the attribute's type is in a lower-level
 		 * part of the file.
 		 */
-		else if (currentMatch.endsWith(divider + "ownedAttribute")
-				&& xmiType != null && xmiType.equals("uml:Property")
-				&& association == null && thisClass != null) {
+		else if (currentMatch.endsWith(divider + "ownedAttribute") && xmiType != null && xmiType.equals("uml:Property")
+				&& association == null && thisClass != null && attrs.containsKey("name")) {
 
 			thisAttr = new UMLattribute(uuid);
 			try {
@@ -381,9 +387,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		/*
 		 * ... continued from the section immediately above...
 		 */
-		else if (currentMatch.endsWith(divider + "ownedAttribute" + divider
-				+ "type")
-				&& xmiType != null && xmiType.equals("uml:Class")) {
+		else if (currentMatch.endsWith(divider + "ownedAttribute" + divider + "type") && xmiType != null
+				&& xmiType.equals("uml:Class") && !this.attrs2resolve.containsKey(thisAttr)) {
 
 			String typeId = attrs.get("href").substring(1);
 			this.attrs2resolve.put(thisAttr, typeId);
@@ -393,13 +398,11 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		 * ... if the data type is being referred to from an outside file.
 		 * Better make sure its one of the standard types.
 		 */
-		else if (currentMatch.endsWith(divider + "ownedAttribute" + divider
-				+ "type" + divider + "xmi:Extension" + divider
-				+ "referenceExtension")) {
+		else if (currentMatch.endsWith(divider + "ownedAttribute" + divider + "type" + divider + "xmi:Extension"
+				+ divider + "referenceExtension")) {
 
 			String path = attrs.get("referentPath");
-			String typeId = path.substring(path.lastIndexOf("::") + 2,
-					path.length());
+			String typeId = path.substring(path.lastIndexOf("::") + 2, path.length());
 
 			if (this.getPreexistingTypes().containsKey(typeId)) {
 				UMLclass t = this.getPreexistingTypes().get(typeId);
@@ -409,23 +412,19 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 				// (Strings, etc) to participate in roles.
 				//
 				if (thisAttr == null && thisRole != null) {
-					this.getExceptions().add(
-							"Cannot use basic types in roles:"
-									+ t.getBaseName());
+					this.getExceptions().add("Cannot use basic types in roles:" + t.getBaseName());
 				} else {
 					thisAttr.setType(t);
 				}
 
 			} else if (typeId.equals("Element")) {
-				System.out
-						.println("Detected 'Element' references, usually this means "
-								+ "that you've added new stereotypes to this model. This is not "
-								+ "important for VPDMf modeling.");
+				System.out.println("Detected 'Element' references, usually this means "
+						+ "that you've added new stereotypes to this model. This is not "
+						+ "important for VPDMf modeling.");
 			} else if (typeId.equals("Property")) {
-				System.out
-						.println("Detected 'Property' references, usually this means "
-								+ "that you've added new stereotypes to this model. This is not "
-								+ "important for VPDMf modeling.");
+				System.out.println("Detected 'Property' references, usually this means "
+						+ "that you've added new stereotypes to this model. This is not "
+						+ "important for VPDMf modeling.");
 
 			} else {
 				System.err.println("Don't recognize " + typeId);
@@ -435,9 +434,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		/*
 		 * ... continued from the section immediately above...
 		 */
-		else if (currentMatch.endsWith(divider + "ownedAttribute" + divider
-				+ "type")
-				&& xmiType != null && xmiType.equals("uml:DataType")) {
+		else if (currentMatch.endsWith(divider + "ownedAttribute" + divider + "type") && xmiType != null
+				&& xmiType.equals("uml:DataType")) {
 
 			String typeId = attrs.get("href").substring(1);
 			this.attrs2resolve.put(thisAttr, typeId);
@@ -445,13 +443,11 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			// System.out.println("attr:" + thisClass.getClassAddress() + "." +
 			// thisAttr.getBaseName());
 
-		} else if (currentMatch.endsWith("generalization") && xmiType != null
-				&& xmiType.equals("uml:Generalization")) {
+		} else if (currentMatch.endsWith("generalization") && xmiType != null && xmiType.equals("uml:Generalization")) {
 
 			this.parentChildLookup.put(thisClass, attrs.get("general"));
 
-		} else if (currentMatch.endsWith(divider
-				+ "MagicDraw_Profile:HyperlinkOwner")) {
+		} else if (currentMatch.endsWith(divider + "MagicDraw_Profile:HyperlinkOwner")) {
 
 			String packageId = attrs.get("base_Element");
 			String url = attrs.get("hyperlinkTextActive");
@@ -462,11 +458,9 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 			this.currentDocumentation = attrs.get("body");
 
-		} else if (currentMatch.endsWith(divider + "ownedComment" + divider
-				+ "annotatedElement")) {
+		} else if (currentMatch.endsWith(divider + "ownedComment" + divider + "annotatedElement")) {
 
-			this.documentation.put(attrs.get("xmi:idref"),
-					this.currentDocumentation);
+			this.documentation.put(attrs.get("xmi:idref"), this.currentDocumentation);
 
 		}
 
@@ -476,8 +470,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		UMLpackage pkg = null;
 		if (!this.packageStack.isEmpty()) {
-			pkg = (UMLpackage) this.packageStack
-					.get(this.packageStack.size() - 1);
+			pkg = (UMLpackage) this.packageStack.get(this.packageStack.size() - 1);
 		} else {
 			pkg = this.getUmlModel().getTopPackage();
 			this.packageStack.add(pkg);
@@ -521,13 +514,10 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		if (typeStack.contains("uml:Package=File View"))
 			return false;
 
-		if (currentMatch
-				.startsWith(divider + "xmi:XMI" + divider + "uml:Model")
-				|| currentMatch.startsWith(divider + "xmi:XMI" + divider
-						+ "xmi:Extension" + divider + "proxies")
-				|| currentMatch.endsWith(":ordered")
-				|| currentMatch.endsWith(":proxy")
-				|| currentMatch.endsWith(":HyperlinkOwner")) {
+		if (currentMatch.startsWith(divider + "xmi:XMI" + divider + "uml:Model")
+				|| currentMatch.startsWith(divider + "xmi:XMI" + divider + "xmi:Extension" + divider + "proxies")
+				|| currentMatch.endsWith(":ordered") || currentMatch.endsWith(":proxy") || currentMatch.endsWith(":FK")
+				|| currentMatch.endsWith(":PK") || currentMatch.endsWith(":HyperlinkOwner")) {
 
 			return true;
 
@@ -551,10 +541,10 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 					thisClass = this.getTopClass();
 				} else if (thisAssoc != null) {
 					thisAssoc = null;
-				} else if (typeStack.get(typeStack.size() - 1).startsWith(
-						"uml:Package")) {
+				} else if (typeStack.get(typeStack.size() - 1).startsWith("uml:Package")) {
 					UMLpackage top = this.getPackage();
 					this.packageStack.remove(top);
+
 				} 
 			}
 			else if (currentMatch.endsWith("UML:Package" + divider +
@@ -574,10 +564,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 				} else {
 					thisAttr = null;
 				}
-			
+
 			}
-			
-		
 
 		}
 
@@ -622,9 +610,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		HashSet<UMLclass> exoticTypes = new HashSet<UMLclass>();
 
-		Iterator<UMLattribute> aIt = this.attrs2resolve.keySet().iterator();
-		while (aIt.hasNext()) {
-			UMLattribute a = aIt.next();
+		for (UMLattribute a : this.attrs2resolve.keySet()) {
 			String atKey = this.attrs2resolve.get(a);
 
 			String s = "ML_Standard_Profile.xml#";
@@ -639,13 +625,11 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			}
 
 			if (!(item instanceof UMLclass))
-				System.err.print(item.getClass().getName() + "(id="
-						+ item.getUuid() + ") is not a class");
+				System.err.print(item.getClass().getName() + "(id=" + item.getUuid() + ") is not a class");
 			else {
 
 				UMLclass c = (UMLclass) item;
-				UMLclass t = this.getUmlModel().listTypes()
-						.get(c.getBaseName());
+				UMLclass t = this.getUmlModel().listTypes().get(c.getBaseName());
 
 				// Uses an exotic type such as 'longString'
 				if (t != null && !c.equals(t)) {
@@ -658,8 +642,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		}
 
-		Iterator<UMLitem> pIt = this.getUmlModel().getItems().values()
-				.iterator();
+		Iterator<UMLitem> pIt = this.getUmlModel().getItems().values().iterator();
 		while (pIt.hasNext()) {
 			UMLitem item = pIt.next();
 			if (!(item instanceof UMLpackage))
@@ -673,15 +656,10 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		// CHECKS
 		UMLclass sType = this.getUmlModel().listTypes().get("String");
-		Iterator cIt = this.getUmlModel().listAllClasses().values().iterator();
-		while (cIt.hasNext()) {
-			UMLclass c = (UMLclass) cIt.next();
-			aIt = c.getAttributes().iterator();
-			while (aIt.hasNext()) {
-				UMLattribute a = aIt.next();
+		for (UMLclass c : this.getUmlModel().listAllClasses().values()) {
+			for (UMLattribute a : c.getAttributes()) {
 				if (a.getType() == null) {
-					System.err.print(c.getBaseName() + "." + a.getBaseName()
-							+ " type is not set, adding 'String'\n");
+					System.err.print(c.getBaseName() + "." + a.getBaseName() + " type is not set, adding 'String'\n");
 					a.setType(sType);
 				}
 			}
@@ -713,8 +691,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			String roleKey = (String) rIt.next();
 
 			String assocKey = this.rolesAndAssoc.get(roleKey);
-			UMLassociation assoc = (UMLassociation) this.getUmlModel()
-					.getItems().get(assocKey);
+			UMLassociation assoc = (UMLassociation) this.getUmlModel().getItems().get(assocKey);
 
 			// Role is 'active' i.e. defined as a property of a class
 			if (this.getUmlModel().getItems().containsKey(roleKey)) {
@@ -724,12 +701,9 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 				if (item instanceof UMLattribute) {
 					UMLattribute a = (UMLattribute) item;
 
-					getExceptions()
-							.add(a.getParentClass().getBaseName()
-									+ "."
-									+ a.getBaseName()
-									+ " is an attribute that participates in an assocation. Consider "
-									+ "making this a role\n");
+					getExceptions().add(a.getParentClass().getBaseName() + "." + a.getBaseName()
+							+ " is an attribute that participates in an assocation. Consider "
+							+ "making this a role\n");
 					continue;
 
 				}
@@ -756,35 +730,41 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		}
 
-		Iterator<UMLclass> it = this.parentChildLookup.keySet().iterator();
-		while (it.hasNext()) {
-			UMLclass c = it.next();
+		for (UMLclass c : this.parentChildLookup.keySet()) {
 			String pUid = this.parentChildLookup.get(c);
 			UMLclass p = (UMLclass) this.getUmlModel().getItems().get(pUid);
 			c.setParent(p);
 			p.getChildren().add(c);
 
-			log.debug("Parent: " + p.getImplName() + " - Child: "
-					+ c.getImplName());
+			log.debug("Parent: " + p.getImplName() + " - Child: " + c.getImplName());
+		}
+
+		// use stereotypes to define some attributes as 'FK'
+		for (String id : this.fks) {
+			UMLattribute a = (UMLattribute) this.getUmlModel().getItems().get(id);
+			a.setStereotype("FK");
+			log.debug(a.getImplName() + "<<FK>>");
+		}
+
+		// use stereotypes to define some attributes as 'FK'
+		for (String id : this.pks) {
+			UMLattribute a = (UMLattribute) this.getUmlModel().getItems().get(id);
+			a.setStereotype("PK");
+			log.debug(a.getImplName() + "<<PK>>");
 		}
 
 		// use stereotypes to define some classes as 'proxy'
-		Iterator<String> idIt = this.proxyClasses.iterator();
-		while (idIt.hasNext()) {
-			String id = idIt.next();
+
+		for (String id : this.proxyClasses) {
 			UMLclass c = (UMLclass) this.getUmlModel().getItems().get(id);
 			c.setStereotype("proxy");
 			log.debug(c.getImplName() + "<<proxy>>");
 		}
 
 		// Run through the existing classes and make connections
-		cIt = this.getUmlModel().listAllClasses().values().iterator();
-		while (cIt.hasNext()) {
-			UMLclass c = (UMLclass) cIt.next();
+		for (UMLclass c : this.getUmlModel().listAllClasses().values()) {
 
-			rIt = c.getAssociateRoles().values().iterator();
-			while (rIt.hasNext()) {
-				UMLrole r = (UMLrole) rIt.next();
+			for (UMLrole r : c.getAssociateRoles().values()) {
 
 				UMLrole or = r.otherRole();
 
@@ -806,8 +786,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 					}
 
 					or.setAssociateClass(r.getDirectClass());
-					r.getDirectClass().getAssociateRoles()
-							.put(or.getImplName(), or);
+					r.getDirectClass().getAssociateRoles().put(or.getImplName(), or);
 
 				}
 
@@ -824,11 +803,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		}
 
-		Iterator<UMLitem> itemIt = this.getUmlModel().getItems().values()
-				.iterator();
-		while (itemIt.hasNext()) {
-			UMLitem item = itemIt.next();
-
+		for (UMLitem item : this.getUmlModel().getItems().values()) {
 			if (item instanceof UMLassociation) {
 				UMLassociation ass = (UMLassociation) item;
 
@@ -838,9 +813,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		}
 
 		// Check every association and every role
-		cIt = this.getUmlModel().listAllClasses().values().iterator();
-		while (cIt.hasNext()) {
-			UMLclass c = (UMLclass) cIt.next();
+		// Run through the existing classes and make connections
+		for (UMLclass c : this.getUmlModel().listAllClasses().values()) {
 
 			rIt = c.getAssociateRoles().values().iterator();
 			while (rIt.hasNext()) {
@@ -848,42 +822,29 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 				UMLrole or = r.otherRole();
 
 				if (or == null)
-					getExceptions().add(
-							"Can't find other role for " + c.getClassAddress()
-									+ "." + r.getImplName());
+					getExceptions().add("Can't find other role for " + c.getClassAddress() + "." + r.getImplName());
 
 				if (r.getAssociateClass() == null)
-					getExceptions().add(
-							"Can't find associate class for "
-									+ c.getClassAddress() + "."
-									+ r.getImplName());
+					getExceptions()
+							.add("Can't find associate class for " + c.getClassAddress() + "." + r.getImplName());
 
 				if (r.getDirectClass() == null)
-					getExceptions().add(
-							"Can't find direct class for "
-									+ c.getClassAddress() + "."
-									+ r.getImplName());
+					getExceptions().add("Can't find direct class for " + c.getClassAddress() + "." + r.getImplName());
 
 			}
 		}
 
-		Iterator<String> orderedIdsIt = this.orderedAssocs.iterator();
-		while (orderedIdsIt.hasNext()) {
-			String orderedId = orderedIdsIt.next();
+		for (String orderedId : this.orderedAssocs) {
 			UMLassociation assoc = this.assoc2resolve.get(orderedId);
 			assoc.setStereotype("ordered");
 		}
 
-		Iterator<String> pKeyIt = this.packageNamespace.keySet().iterator();
-		while (pKeyIt.hasNext()) {
-			String pKey = pKeyIt.next();
-			UMLpackage pkg = (UMLpackage) this.getUmlModel().getItems()
-					.get(pKey);
+		for (String pKey : this.packageNamespace.keySet()) {
+			UMLpackage pkg = (UMLpackage) this.getUmlModel().getItems().get(pKey);
 			try {
 				pkg.setUri(new URI(this.packageNamespace.get(pKey)));
 			} catch (URISyntaxException e) {
-				System.err.print("Namespace incorrectly formed for "
-						+ pkg.getPkgAddress() + " : "
+				System.err.print("Namespace incorrectly formed for " + pkg.getPkgAddress() + " : "
 						+ this.packageNamespace.get(pKey));
 				e.printStackTrace();
 			}
@@ -891,19 +852,14 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 		}
 
 		// Fill in children for packages.
-		Iterator<UMLpackage> pkgIt = this.getUmlModel().listPackages().values()
-				.iterator();
-		while (pkgIt.hasNext()) {
-			UMLpackage pkg = pkgIt.next();
+		for (UMLpackage pkg : this.getUmlModel().listPackages().values()) {
 			UMLpackage parent = pkg.getParent();
 			if (parent != null)
 				parent.getChildren().add(pkg);
 		}
 
 		// Clean up 'Exotic Types' that get added to the model during editing.
-		Iterator<UMLclass> eIt = exoticTypes.iterator();
-		while (eIt.hasNext()) {
-			UMLclass e = eIt.next();
+		for (UMLclass e : exoticTypes) {
 
 			this.getUmlModel().getItems().remove(e.getUuid());
 			e.setModel(null);
@@ -912,9 +868,7 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 
 		}
 
-		Iterator<String> uidIt = this.documentation.keySet().iterator();
-		while (uidIt.hasNext()) {
-			String uid = uidIt.next();
+		for (String uid : this.documentation.keySet()) {
 			UMLitem item = this.getUmlModel().getItems().get(uid);
 			String doc = this.documentation.get(uid);
 			if (item != null)
@@ -946,9 +900,8 @@ public class MagicDrawXMI_ModelParserHandler extends UMLModelParserHandler {
 			dc = r.getDirectClass();
 		}
 
-		log.debug(r.getDirectClass().getBaseName() + "." + r.getBaseName()
-				+ "[mult:" + r.getMult_upper() + currentMatch + ", nav:"
-				+ r.getNavigable() + "]");
+		log.debug(r.getDirectClass().getBaseName() + "." + r.getBaseName() + "[mult:" + r.getMult_upper() + currentMatch
+				+ ", nav:" + r.getNavigable() + "]");
 
 		return r;
 

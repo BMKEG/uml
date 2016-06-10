@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,6 +20,19 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import com.google.common.io.Files;
+
+import edu.isi.bmkeg.uml.model.UMLattribute;
+import edu.isi.bmkeg.uml.model.UMLclass;
+import edu.isi.bmkeg.uml.model.UMLitem;
+import edu.isi.bmkeg.uml.model.UMLmodel;
+import edu.isi.bmkeg.uml.model.UMLrole;
+import edu.isi.bmkeg.utils.Converters;
+import edu.isi.bmkeg.utils.MapCreate;
+import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -28,21 +41,7 @@ import javassist.CtNewMethod;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.ConstPool;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
-
-import com.google.common.io.Files;
-
-import edu.isi.bmkeg.uml.model.UMLattribute;
-import edu.isi.bmkeg.uml.model.UMLclass;
-import edu.isi.bmkeg.uml.model.UMLmodel;
-import edu.isi.bmkeg.uml.model.UMLpackage;
-import edu.isi.bmkeg.uml.model.UMLrole;
-import edu.isi.bmkeg.utils.Converters;
-import edu.isi.bmkeg.utils.MapCreate;
-import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
-
-public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class JavaPojoUmlBuilder extends UmlComponentBuilder implements ImplConvert {
 	
 	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.JavaPojoUmlInterface");
 
@@ -51,6 +50,8 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 	
 	private Map<String, String> queryObjectLookupTable;
 	private Map<String, String> javaLookupTable;
+
+	private boolean buildQuestions = false;
 	
 	protected static String[] javaTargetTypes = new String[] {
         "long", 
@@ -79,7 +80,7 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 		"String", "String", "String",
 		"String", "String", "String" };
 
-	public JavaPojoUmlInterface() throws Exception {
+	public JavaPojoUmlBuilder() throws Exception {
 		
 		this.buildLookupTable();
 
@@ -88,7 +89,10 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 	public void buildLookupTable() throws Exception {
 		
 		javaLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, javaTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, javaTargetTypes));
+		
+		queryObjectLookupTable = new HashMap<String, String>(MapCreate.asMap(
+				UmlComponentBuilder.baseAttrTypes, javaQuestionTargetTypes));
 		
 		this.setLookupTable(javaLookupTable);
 		
@@ -103,6 +107,8 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 		Map<String,File> filesInZip = new HashMap<String,File>();
 		
 		this.convertAttributes();
+	
+		this.getUmlModel().convertAllItemsFromDashToCamelCase();
 		
 		String dAddr = dumpDir.getAbsolutePath();
 
@@ -148,6 +154,10 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 				continue;
 			}
 			
+			if( this.getLookupTable().containsKey(c.getBaseName()) ) {
+				continue;
+			}
+			
 			String fAddr = addr.replaceAll("\\.", "/"); 
 				
 			String code = this.generateCodeForClass(c, pkgPattern);
@@ -160,6 +170,55 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 			javaFilePaths.add(dumpDir.getAbsolutePath() + "/" + fAddr + ".java");
 								
 		}
+		
+		if( this.isBuildQuestions() ) {
+			
+			this.convertToQuestionObjects();
+			boolean af = this.annotFlag;
+			this.annotFlag = false;
+			
+			this.setLookupTable(queryObjectLookupTable);
+			this.convertAttributes();
+						
+			classMap = this.getUmlModel().listClasses(pkgPattern);
+			cIt = classMap.keySet().iterator();
+			while(cIt.hasNext()) {
+				String addr = cIt.next();
+				UMLclass c = classMap.get(addr);
+			
+				addr = addr.substring(2,addr.length());
+				
+				// Check to see if the class is a set backing table... 
+				// if so don't generate the source code.
+				if( c.getStereotype() != null && c.getStereotype().equals("Link") ){
+					continue;
+				}
+				
+				if( this.getLookupTable().containsKey(c.getBaseName()) )
+					continue;
+				
+				String fAddr = addr.replaceAll("\\.", "/"); 
+				
+				String code = this.generateCodeForClass(c, pkgPattern);
+				
+				File f = new File(dAddr + "/" + fAddr + ".java"); 
+				
+				FileUtils.writeStringToFile(f, code);
+				filesInZip.put(fAddr + ".java", f);
+				
+				javaFilePaths.add(dumpDir.getAbsolutePath() + "/" + fAddr + ".java");
+									
+			}
+
+			this.convertFromQuestionObjects();
+
+			this.setLookupTable(javaLookupTable);
+			this.convertAttributes();
+
+			this.annotFlag = af;
+			
+		}
+		
 				
 		return filesInZip;
 		
@@ -897,7 +956,7 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 		fos.close();
 		filesInSrcJar.put("src/main/resources/model/" + uml.getName(), uml);
 
-		Map<String,File> javaFiles = this.generateJavaCodeForModel(main_java,  "\\.model\\.", false);
+		Map<String,File> javaFiles = this.generateJavaCodeForModel(main_java,  ".*", false);
 		
 		Iterator<String> keyIt = javaFiles.keySet().iterator();
 		while(keyIt.hasNext()) {
@@ -959,92 +1018,59 @@ public class JavaPojoUmlInterface extends UmlComponentInterface implements ImplC
 	
 	/**
 	 * Used to convert a model to generate 'QueryObjects'
-	 * - move all classes in packages named '.model.' to a sub-package named '.model.qo'
 	 * - rename all classes to <STEM>_qo
+	 * - convert all attributes to type 'string'
 	 * @throws Exception
 	 */
-	public void convertToPojoObjects() throws Exception {
+	public void convertToQuestionObjects() throws Exception {
 				
-		Map<String, UMLpackage> pkgMap = this.getUmlModel().listPackages("\\.model");
-		Iterator<String> pIt = pkgMap.keySet().iterator();
-		while(pIt.hasNext()) {
-			String addr = pIt.next();
-			UMLpackage p = pkgMap.get(addr);
-			addr = addr.substring(2,addr.length());
-			if( addr.endsWith(".model") ) {
-				UMLpackage parent = p.getParent();
-				
-				// add a new package into the hierarchy
-				UMLpackage p2 = parent.addNewChildPackage("model");
-
-				p.setParent(p2);
-				p2.getChildren().add(p);
-				parent.getChildren().remove(p);
-				p.setBaseName("pojo");
-				p.setImplName("pojo");
-				p.computePackageAddress();
-			}
-		}
-		
-		/*
-		 * Don't change the names
-		 *  
-		 * Map<String, UMLclass> classMap = this.getUmlModel().listClasses("\\.model\\.");
+		Map<String, UMLclass> classMap = this.getUmlModel().listClasses(".*");
 		Iterator<String> cIt = classMap.keySet().iterator();
 		while(cIt.hasNext()) {
 			String addr = cIt.next();
 			UMLclass c = classMap.get(addr);
-			c.setBaseName(c.getBaseName() + "_pojo");
-			c.setImplName(c.getImplName() + "_pojo");
+			
+			if( this.getLookupTable().containsKey(c.getBaseName()) ) 
+				continue;
+			
+			c.setBaseName("QueryObject__" + c.getBaseName() );
+			c.setImplName("QueryObject__" + c.getImplName() );
 			c.computeClassAddress();
-		}*/
+		}
 		
 	}
-	
+
 	/**
 	 * Used to convert a model back from 'QueryObjects'
 	 * - move all classes in packages named '.model.qo.' to the parent '.model.'
 	 * - rename all classes to <STEM>
 	 * @throws Exception
 	 */
-	public void convertFromPojoObjects() throws Exception {
+
+	public void convertFromQuestionObjects() throws Exception {
 		
-		Map<String, UMLpackage> pkgMap = this.getUmlModel().listPackages("\\.model\\.");
-		Iterator<String> pIt = pkgMap.keySet().iterator();
-		while(pIt.hasNext()) {
-			String addr = pIt.next();
-			UMLpackage p = pkgMap.get(addr);
-			addr = addr.substring(2,addr.length());
-			if( addr.endsWith(".model.pojo") ) {
-				UMLpackage parent = p.getParent();
-				if( !parent.getBaseName().equals("model") ) {
-					throw new Exception("pojo specification is broken: " + addr);
-				}
-				UMLpackage p2 = parent.getParent();
-				p.setParent(p2);
-				p2.getChildren().remove(parent);
-				p2.getChildren().add(p);
-				this.getUmlModel().getItems().remove(parent.getUuid());
-				parent.setModel(null);
-				p.setBaseName("model");
-				p.setImplName("model");
-				p.computePackageAddress();
-			}
-		}
-		
-		/*Map<String, UMLclass> classMap = this.getUmlModel().listClasses("\\.model\\.");
+		Pattern p = Pattern.compile("QueryObject__");
+		Map<String, UMLclass> classMap = this.getUmlModel().listClasses(".*");
 		Iterator<String> cIt = classMap.keySet().iterator();
 		while(cIt.hasNext()) {
 			String addr = cIt.next();
 			UMLclass c = classMap.get(addr);
-			if( addr.endsWith("_pojo") ) {
+			Matcher m = p.matcher(addr);
+			if( m.find() ) {
 				c.setBaseName(c.getBaseName().substring(0, c.getBaseName().length()-3));
 				c.setImplName(c.getImplName().substring(0, c.getImplName().length()-3));
 				c.computeClassAddress();
 			}
-		}*/
+		}
 		
 	}
-	
+
+	public boolean isBuildQuestions() {
+		return buildQuestions;
+	}
+
+	public void setBuildQuestions(boolean buildQuestions) {
+		this.buildQuestions = buildQuestions;
+	}
 	
 }

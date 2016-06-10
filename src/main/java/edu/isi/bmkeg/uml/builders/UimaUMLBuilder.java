@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -65,7 +65,7 @@ import edu.isi.bmkeg.utils.Converters;
 import edu.isi.bmkeg.utils.MapCreate;
 import edu.isi.bmkeg.utils.mvnRunner.LocalMavenInstall;
 
-public class UimaUMLInterface extends JavaUmlInterface implements
+public class UimaUMLBuilder extends JavaUmlBuilder implements
 		ImplConvert {
 
 	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.UimaUMLInterface");
@@ -83,13 +83,13 @@ public class UimaUMLInterface extends JavaUmlInterface implements
 			"uima.cas.String", "uima.cas.TOP", "uima.cas.TOP",
 			"uima.cas.String", "uima.cas.String", "uima.cas.String" };
 
-	public UimaUMLInterface(String uimaPattern) throws Exception {
+	public UimaUMLBuilder(String uimaPattern) throws Exception {
 		super();
 		
 		this.uimaPattern = uimaPattern;
 		
 		uimaLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, uimaTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, uimaTargetTypes));
 	
 	}
 
@@ -98,7 +98,7 @@ public class UimaUMLInterface extends JavaUmlInterface implements
 		super.buildLookupTable();
 		
 		this.uimaLookupTable = new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, uimaTargetTypes));
+				UmlComponentBuilder.baseAttrTypes, uimaTargetTypes));
 		
 		this.setLookupTable(this.uimaLookupTable);
 

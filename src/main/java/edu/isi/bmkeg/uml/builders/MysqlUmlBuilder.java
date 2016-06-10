@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import edu.isi.bmkeg.uml.model.UMLclass;
 import edu.isi.bmkeg.uml.model.UMLrole;
 import edu.isi.bmkeg.utils.MapCreate;
 
-public class MysqlUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class MysqlUmlBuilder extends UmlComponentBuilder implements ImplConvert {
 
 	private String dbName;
 
@@ -56,7 +56,7 @@ public class MysqlUmlInterface extends UmlComponentInterface implements ImplConv
 		return password;
 	}
 
-	public MysqlUmlInterface() throws Exception {
+	public MysqlUmlBuilder() throws Exception {
 
 		this.buildLookupTable();
 
@@ -73,7 +73,7 @@ public class MysqlUmlInterface extends UmlComponentInterface implements ImplConv
 				"LONGBLOB", "DATE", "TIMESTAMP", "TEXT" };
 
 		this.setLookupTable(new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, mySqlTargetTypes)));
+				UmlComponentBuilder.baseAttrTypes, mySqlTargetTypes)));
 
 	}
 

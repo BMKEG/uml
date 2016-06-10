@@ -1,28 +1,20 @@
 package edu.isi.bmkeg.uml.interfaces;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import edu.isi.bmkeg.uml.builders.RdfsUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
-import edu.isi.bmkeg.utils.springContext.AppContext;
+import junit.framework.TestCase;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/edu/isi/bmkeg/uml/sources/appCtx-UMLTestNoJPA.xml"})
-public class RdfsUmlInterfaceTest {
+public class RdfsUmlInterfaceTest extends TestCase {
 
-	ApplicationContext ctx;
 	
-	RdfsUmlInterface rdfsInt;
+	RdfsUmlBuilder rdfsInt;
 	
 	File ooevvUml;
 	File ooevvRdfs;
@@ -34,10 +26,9 @@ public class RdfsUmlInterfaceTest {
 	@Before
 	public void setUp() throws Exception {
         
-		ctx = AppContext.getApplicationContext();
-
-		ooevvUml = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile();	
-		ooevvRdfs = new File(ooevvUml.getParent() + "/ooevv_rdfs.xml");	
+		ooevvUml = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/ooevv.xml").getFile());	
+		ooevvRdfs = new File(ooevvUml.getParent() + "/ooevv_rdfs.ttl");	
 		ooevvOut = new File(ooevvUml.getParent() + "/ooevv_rdfs");	
 
 		UMLModelSimpleParser p = new UMLModelSimpleParser(UMLmodel.XMI_MAGICDRAW);
@@ -45,7 +36,7 @@ public class RdfsUmlInterfaceTest {
 		
 		UMLmodel m = p.getUmlModels().get(0);
 	
-		rdfsInt = new RdfsUmlInterface(stem);
+		rdfsInt = new RdfsUmlBuilder(stem);
 		rdfsInt.setUmlModel(m);
 		
 	}

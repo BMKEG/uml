@@ -1,4 +1,4 @@
-package edu.isi.bmkeg.uml.interfaces;
+package edu.isi.bmkeg.uml.builders;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -30,7 +30,7 @@ import edu.isi.bmkeg.uml.model.UMLrole;
 import edu.isi.bmkeg.utils.Converters;
 import edu.isi.bmkeg.utils.MapCreate;
 
-public class RdfsUmlInterface extends UmlComponentInterface implements ImplConvert {
+public class RdfsUmlBuilder extends UmlComponentBuilder implements ImplConvert {
 	
 	Logger log = Logger.getLogger("edu.isi.bmkeg.uml.interfaces.RdfUmlInteface");
 	
@@ -64,7 +64,7 @@ public class RdfsUmlInterface extends UmlComponentInterface implements ImplConve
         "url"
 	};
 	
-	public RdfsUmlInterface(String stem) throws Exception {
+	public RdfsUmlBuilder(String stem) throws Exception {
 
 		this.stem = stem;
 		
@@ -100,7 +100,7 @@ public class RdfsUmlInterface extends UmlComponentInterface implements ImplConve
 	public void buildLookupTable() throws Exception {
 		
 		this.setLookupTable(new HashMap<String, String>(MapCreate.asMap(
-				UmlComponentInterface.baseAttrTypes, rdfsTargetTypes)));
+				UmlComponentBuilder.baseAttrTypes, rdfsTargetTypes)));
 				
 	}
 		
@@ -386,7 +386,7 @@ public class RdfsUmlInterface extends UmlComponentInterface implements ImplConve
 		}
 
 		BufferedWriter out = new BufferedWriter(new FileWriter(rdfsFile));
-		m.write(out,"RDF/XML-ABBREV");
+		m.write(out,"TTL");
 				
 	}	
 	

@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import edu.isi.bmkeg.uml.interfaces.JavaUmlInterface;
+import edu.isi.bmkeg.uml.builders.JavaUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
 
@@ -46,7 +46,7 @@ public class ConvertModel_MagicDraw2Java{
 			
 			UMLmodel m = p.getUmlModels().get(0);
 
-			JavaUmlInterface jUMLi = new JavaUmlInterface();
+			JavaUmlBuilder jUMLi = new JavaUmlBuilder();
 			jUMLi.setUmlModel(m);
 					
 			jUMLi.generateSimpleJavaSourceModel(zip, pkgPattern);

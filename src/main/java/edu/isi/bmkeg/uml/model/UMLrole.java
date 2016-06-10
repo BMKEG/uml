@@ -154,5 +154,23 @@ public class UMLrole extends UMLitem {
 		return this.getDirectClass().getPkg().readPrefix();
 	}
 
+	public void convertDashToCamelCase() throws Exception {
+		int p = this.getImplName().lastIndexOf("-");
+		int c = 0;
+		while( p != -1 && c < 20 ){
+			String s = this.getImplName().substring(0, p) + 
+					this.getImplName().substring(p+1, p+2).toUpperCase()+
+					this.getImplName().substring(p+2, this.getImplName().length());
+			this.setImplName(s);
+			p = this.getImplName().lastIndexOf("-");
+			c++;
+		}
+		if( c>19 ) 
+			throw new Exception("Error converting dashes to camel case");
+	}
+	
+	public String toString() {
+		return this.associateClass.getImplName() + "." + this.getImplName();
+	}
 	
 }

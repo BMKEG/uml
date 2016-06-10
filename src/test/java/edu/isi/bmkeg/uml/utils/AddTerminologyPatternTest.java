@@ -5,23 +5,14 @@ import java.io.File;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import edu.isi.bmkeg.uml.interfaces.JavaUmlInterface;
-import edu.isi.bmkeg.uml.interfaces.OwlUmlInterface;
+import edu.isi.bmkeg.uml.builders.OwlUmlBuilder;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
-import edu.isi.bmkeg.utils.springContext.AppContext;
+import junit.framework.TestCase;
 
+public class AddTerminologyPatternTest extends TestCase {
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/edu/isi/bmkeg/uml/sources/appCtx-UMLTestNoJPA.xml"})
-public class AddTerminologyPatternTest {
-
-	ApplicationContext ctx;
 	UMLmodel m, m2;
 	UMLModelSimpleParser p;
 	
@@ -39,10 +30,8 @@ public class AddTerminologyPatternTest {
 	@Before
 	public void setUp() throws Exception {
         
-		ctx = AppContext.getApplicationContext();
-
-		ooevv = ctx.getResource(
-				"classpath:edu/isi/bmkeg/uml/models/ooevvTermDemo.xml").getFile();		
+		ooevv = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/ooevvTermDemo.xml").getFile());		
 		owlFile = new File(ooevv.getParent() + "/ooevv_demo.owl");
 		jarFile = new File(ooevv.getParent() + "/ooevv_demo.jar");
 		
@@ -72,7 +61,7 @@ public class AddTerminologyPatternTest {
 	@Test
 	public void testSaveAsOwl() throws Exception {
 			
-		OwlUmlInterface oui = new OwlUmlInterface();
+		OwlUmlBuilder oui = new OwlUmlBuilder();
 		oui.setUmlModel(m);
 		oui.saveUmlAsOwl(owlFile, "", ".model.");
 		

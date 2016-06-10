@@ -1,7 +1,5 @@
 package edu.isi.bmkeg.uml;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
@@ -9,21 +7,14 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import edu.isi.bmkeg.uml.model.UMLclass;
 import edu.isi.bmkeg.uml.model.UMLmodel;
 import edu.isi.bmkeg.uml.sources.UMLModelSimpleParser;
-import edu.isi.bmkeg.utils.springContext.AppContext;
+import junit.framework.TestCase;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"/edu/isi/bmkeg/uml/sources/appCtx-UMLTestNoJPA.xml"})
-public class UmlJpaStorageTest {
+public class UmlJpaStorageTest extends TestCase {
 
-	ApplicationContext ctx;
 	UMLmodel m;
 	UMLModelSimpleParser p;
 	
@@ -34,10 +25,12 @@ public class UmlJpaStorageTest {
 	@Before
 	public void setUp() throws Exception {
         
-		ctx = AppContext.getApplicationContext();
-		magic = ctx.getResource("classpath:edu/isi/bmkeg/uml/models/resource/resource.xml").getFile();
-		argo = ctx.getResource("classpath:edu/isi/bmkeg/uml/sources/argoUMLTest.uml").getFile();
-		poseidon = ctx.getResource("classpath:edu/isi/bmkeg/uml/sources/poseidon-core.xml").getFile();
+		magic = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/models/resource/resource.xml").getFile());
+		argo = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/sources/argoUMLTest.uml").getFile());
+		poseidon = new File(this.getClass().getClassLoader().getResource(
+				"classpath:edu/isi/bmkeg/uml/sources/poseidon-core.xml").getFile());
 		
 	}
 

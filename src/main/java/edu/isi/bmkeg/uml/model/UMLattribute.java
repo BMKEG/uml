@@ -2,6 +2,8 @@ package edu.isi.bmkeg.uml.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UMLattribute extends UMLparameter {
 
@@ -109,6 +111,7 @@ public class UMLattribute extends UMLparameter {
 		newAss.setImplName(this.getImplName());
 		newAss.setBaseName(this.getBaseName());
 		newAss.setDesigned(false);
+		newAss.setToImplement(true);
 		
 		UMLpackage pkg = this.getParentClass().getPkg();
 		newAss.setPkg(pkg);
@@ -123,6 +126,7 @@ public class UMLattribute extends UMLparameter {
 		newRoleExt.setMult_lower(1);
 		newRoleExt.setMult_upper(1);
 		newRoleExt.setDesigned(false);
+		newRoleExt.setToImplement(true);
 
 		extRef.getDirectRoles().add(newRoleExt);
 
@@ -143,6 +147,7 @@ public class UMLattribute extends UMLparameter {
 		newRoleAt.setMult_lower(1);
 		newRoleAt.setMult_upper(1);
 		newRoleAt.setDesigned(false);
+		newRoleAt.setToImplement(true);
 
 		this.getParentClass().getDirectRoles().add(newRoleAt);
 
@@ -183,6 +188,10 @@ public class UMLattribute extends UMLparameter {
 
 	public void setUnique(boolean unique) {
 		this.unique = unique;
+	}
+	
+	public String toString() {
+		return this.getParentClass().getImplName() + "." + this.getImplName();
 	}
 
 }

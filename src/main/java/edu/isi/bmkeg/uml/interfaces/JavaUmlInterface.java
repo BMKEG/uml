@@ -107,9 +107,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		
 	}
 	
-	public Map<String,File> generateJavaCodeForModel(File dumpDir, String pkgPattern, boolean annotFlag) throws Exception {
-
-		this.annotFlag = annotFlag;
+	public Map<String,File> generateJavaCodeForModel(File dumpDir, String pkgPattern) throws Exception {
 		
 		this.getUmlModel().cleanModel();
 		
@@ -223,7 +221,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		
 	}	
 	
-	public void generateSimpleJavaSourceModel(File jarFile, String pkgPattern) throws Exception {
+	public void generateSimpleJavaSourceModel(File srcDir, File jarFile, String pkgPattern) throws Exception {
 		
 		this.getUmlModel().cleanModel();
 		
@@ -233,9 +231,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 
 		File dumpDir = jarFile.getParentFile();
 		
-		File tempUnzippedDirectory = Files.createTempDir();
-		tempUnzippedDirectory.deleteOnExit();
-		String dAddr = tempUnzippedDirectory.getAbsolutePath();
+		String dAddr = srcDir.getAbsolutePath();
 
 		// Default case : process all classes
 		List<String> keys = new ArrayList<String>(this.getUmlModel().listPackages(pkgPattern).keySet());
@@ -247,7 +243,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			String addr = keys.get(i);
 			String[] pkgArray =  addr.split("\\.");
 			
-			File currPkg = tempUnzippedDirectory;
+			File currPkg = srcDir;
 			for(int j=1; j<pkgArray.length; j++) {
 				String dirName = pkgArray[j];
 				File pkgFile = new File(currPkg.getAbsolutePath() + "/" + dirName);
@@ -283,7 +279,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			FileUtils.writeStringToFile(f, code);
 			filesInZip.put(fAddr + ".java", f);
 			
-			javaFilePaths.add(tempUnzippedDirectory.getAbsolutePath() + "/" + fAddr + ".java");
+			javaFilePaths.add(srcDir.getAbsolutePath() + "/" + fAddr + ".java");
 								
 		}
 				
@@ -292,8 +288,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		}
 		
 		Converters.jarIt(filesInZip, jarFile);	
-		Converters.recursivelyDeleteFiles(tempUnzippedDirectory);
-
+		
 	}	
 	
 	
@@ -322,12 +317,12 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 				
 		code += "\nimport java.util.*;\n";
 		
-		if( c.getImplName().endsWith("_qo") ) 
+		/*if( c.getImplName().endsWith("_qo") ) 
 			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfQueryObject;\n";
 		else 
-			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfObject;\n";
+			code += "import edu.isi.bmkeg.vpdmf.model.instances.VpdmfObject;\n";*/
 		
-		code += "import java.io.Serializable;\n\n";
+		//code += "import java.io.Serializable;\n\n";
 
 		if( annotFlag ) 
 			code += "import javax.persistence.*;\n";
@@ -338,10 +333,10 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		
 		if( annotFlag ) {
 			code += "@Entity\n";
-			code += "@Inheritance(strategy=InheritanceType.JOINED)\n";
+/*			code += "@Inheritance(strategy=InheritanceType.JOINED)\n";
 			if( c.getParent() != null ) {
 				code += "@PrimaryKeyJoinColumn(name=\"" + c.getPkArray().get(0).getImplName().toLowerCase() +"\")\n";			
-			}
+			}*/
 		}
 		
 		code += "public class " + c.getImplName();
@@ -349,20 +344,20 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		if( c.getParent() != null ) {
 			code += " extends " + c.getParent().getImplName();		
 		} else {
-			code += " implements Serializable";		
+			//code += " implements Serializable";		
 			
-			if( c.getImplName().endsWith("_qo") ) 
+			/*if( c.getImplName().endsWith("_qo") ) 
 				code += ", VpdmfQueryObject";
 			else 
-				code += ", VpdmfObject";
+				code += ", VpdmfObject";*/
 
 			
 		}
 
 		code += " {\n";
 
-		Random rand = new Random(4604469922830399542L);
-		code += "	static final long serialVersionUID = " + rand.nextLong() + "L;\n\n";
+		//Random rand = new Random(4604469922830399542L);
+		//code += "	static final long serialVersionUID = " + rand.nextLong() + "L;\n\n";
 		
 		Iterator<UMLattribute> aIt = c.getAttributes().iterator();
 		while(aIt.hasNext()) {
@@ -401,7 +396,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		
 		code += "\n	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
 		
-		aIt = c.getAttributes().iterator();
+		/*aIt = c.getAttributes().iterator();
 		while(aIt.hasNext()) {
 			UMLattribute a = aIt.next();
 
@@ -432,7 +427,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 			code += "\n\n"; 					
 			code += generateJPASetter(r);
 		
-		}
+		}*/
 		
 		code += "\n\n}\n";
 
@@ -949,7 +944,7 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		return out;
 
 	}		
-
+	
 	
 	// FIXME: Add dependency to vpdmf-jpa.jar project instead of embedding code for edu.isi.bmkeg.vpdmf.model 
 	//        classes in every domain model.
@@ -957,22 +952,24 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 	// from the vpdmf-jpa project.
 	public void buildJpaMavenProject(File srcJarFile, File jarFile, 
 			String group, String artifactId, String version,
-			String bmkegParentVersion) throws Exception {
+			String pkgPattern) throws Exception {
 
 		this.buildJpaMavenProject(srcJarFile, jarFile, 
 				group, artifactId, version,
-				bmkegParentVersion,
+				pkgPattern,
 				true);
 		
 	}
 	
+
+
 	// FIXME: Add dependency to vpdmf-jpa.jar project instead of embedding code for edu.isi.bmkeg.vpdmf.model 
 	//        classes in every domain model.
 	// This is needed because the vpdmf system needs to access the ViewTable class which has to be obtained
-	// from the vpdmf-jpa project.
+	//
 	public void buildJpaMavenProject(File srcJarFile, File jarFile, 
 			String group, String artifactId, String version,
-			String bmkegParentVersion,
+			String  pkgPattern,
 			Boolean buildQuestions) throws Exception {
 		
 		this.buildQuestions = buildQuestions;
@@ -1008,9 +1005,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		File main_resources = new File(tempUnzippedDirectory.getPath() + "/src/main/resources");
 		main_resources.mkdir();
 
-		File main_resources_vpdmf = new File(tempUnzippedDirectory.getPath() + "/src/main/resources/vpdmf");
-		main_resources_vpdmf.mkdir();
-
 		File test = new File(tempUnzippedDirectory.getPath() + "/src/test");
 		test.mkdir();
 		
@@ -1035,13 +1029,6 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		pom += "	<version>" + version + "</version>\n";
 		pom += "	<packaging>jar</packaging>\n";
 
-		pom += "	<parent>\n";
-		pom += "		<groupId>edu.isi.bmkeg</groupId>\n";
-		pom += "		<artifactId>bmkeg-parent</artifactId>\n";
-		pom += "		<version>" + bmkegParentVersion + "</version>\n";
-		pom += "		<relativePath>../bmkeg-parent</relativePath>\n";
-		pom += "	</parent>\n";
-		
 		pom += "	<build>\n";
 		pom += "		<plugins>\n";
 		pom += "			<plugin>\n";
@@ -1090,14 +1077,14 @@ public class JavaUmlInterface extends UmlComponentInterface implements ImplConve
 		else if (m.getSourceType().equals(UMLmodel.XMI_POSEIDON))
 			suffix = "_pos.xml";
 
-		File uml = new File(main_resources_vpdmf.getPath() + "/" + m.getName() + suffix);
+		File uml = new File(main_resources.getPath() + "/" + m.getName() + suffix);
 		FileOutputStream fos = new FileOutputStream(uml);
 		if( m.getSourceData() != null ) 
 			fos.write(m.getSourceData());
 		fos.close();
 		filesInSrcJar.put("src/main/resources/model/" + uml.getName(), uml);
 
-		Map<String,File> javaFiles = this.generateJavaCodeForModel(main_java,  "\\.model\\.", false);
+		Map<String,File> javaFiles = this.generateJavaCodeForModel(main_java, pkgPattern);
 		
 		Iterator<String> keyIt = javaFiles.keySet().iterator();
 		while(keyIt.hasNext()) {

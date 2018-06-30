@@ -616,21 +616,17 @@ public class UMLmodel implements Serializable {
 		this.convertToRelationalImplementation(".");
 	}
 	
-	public void convertToRelationalImplementation(String pkgPattern) throws Exception {
-
-		//
-		// Primary Keys
-		//
-		Iterator<UMLclass> cIt = this.listClasses(pkgPattern).values().iterator();
-		while (cIt.hasNext()) {
-			UMLclass c = cIt.next();
-
+	public void addPrimaryKeys(String pkgPattern) throws Exception {
+		for(UMLclass c: this.listClasses(pkgPattern).values() ) {
 			if (!c.getIsNew())
 				continue;
-
 			c.generatePrimaryKeyAttribute();
-
 		}
+	}
+	
+	public void convertToRelationalImplementation(String pkgPattern) throws Exception {
+
+		this.addPrimaryKeys(pkgPattern);
 
 		//
 		// Derived association classes
@@ -669,13 +665,8 @@ public class UMLmodel implements Serializable {
 		//
 		// Derived attribute-based reference
 		//
-		cIt = this.listClasses(pkgPattern).values().iterator();
-		while (cIt.hasNext()) {
-			UMLclass c = cIt.next();
-
-			Iterator<UMLattribute> aIt = c.getAttributes().iterator();
-			while (aIt.hasNext()) {
-				UMLattribute a = aIt.next();
+		for(UMLclass c : this.listClasses(pkgPattern).values()) {
+			for(UMLattribute a : c.getAttributes()) {
 				if (!a.getType().isDataType()) {
 					if (!a.getIsNew())
 						continue;
@@ -705,9 +696,7 @@ public class UMLmodel implements Serializable {
 		// sure that they are always sorted at the end in alphabetical order
 		// of their target classes / attribute names.
 		//
-		cIt = this.listClasses(pkgPattern).values().iterator();
-		CLASSLOOP: while (cIt.hasNext()) {
-			UMLclass c = cIt.next();
+		CLASSLOOP: for(UMLclass c : this.listClasses(pkgPattern).values()) {
 
 			ArrayList<UMLattribute> ats = new ArrayList<UMLattribute>();
 			HashMap<String, UMLattribute> pks = new HashMap<String, UMLattribute>();
@@ -755,9 +744,7 @@ public class UMLmodel implements Serializable {
 		// Keys supporting inheritence
 		//
 		UMLclass longType = this.listTypes().get("long");
-		cIt = this.listClasses().values().iterator();
-		CLASSLOOP: while (cIt.hasNext()) {
-			UMLclass c = cIt.next();
+		CLASSLOOP: for(UMLclass c : this.listClasses(pkgPattern).values()) {
 
 			// next CLASSLOOP if $class->{implement} == 0 || !$class->{_isNew};
 			if (!c.getIsNew() || !c.getToImplement())

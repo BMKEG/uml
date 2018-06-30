@@ -85,23 +85,5 @@ public class JavaUmlInterfaceTest {
 		
 	}
 
-	@Test
-	public void testGenerateSimpleJavaForModel() throws Exception {
-		
-		UMLModelSimpleParser p = new UMLModelSimpleParser(UMLmodel.XMI_MAGICDRAW);
-		p.parseUMLModelFile(resourceModel);
-		
-		UMLmodel m = p.getUmlModels().get(0);
-	
-		m.convertToRelationalImplementation(".model.");
-		
-		jui = new JavaUmlInterface();
-		jui.setUmlModel(m);
-
-		jui.generateSimpleJavaSourceModel(jar3, ".model.");
-		
-	}
-
-	
 	
 }

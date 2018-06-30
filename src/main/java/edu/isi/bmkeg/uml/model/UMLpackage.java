@@ -148,7 +148,7 @@ public class UMLpackage extends UMLitem {
 	}	
 
 	public String readUrl() throws Exception {
-		URI uri = Converters.convertUmlAddressToUri(this.readPackageAddress());
+		URI uri = Converters.convertUmlAddressToUri(this.readPackageAddress()+"/");
 		String url = uri.toURL().toString();
 		return url;
 	}
@@ -157,7 +157,7 @@ public class UMLpackage extends UMLitem {
 		if( this.getUri() != null ) 
 			return this.getUri();
 		else 
-			return Converters.convertUmlAddressToUri(this.readPackageAddress());
+			return Converters.convertUmlAddressToUri(this.readPackageAddress()+"/");
 	}
 
 	public String readPrefix() throws Exception {
@@ -166,8 +166,11 @@ public class UMLpackage extends UMLitem {
 		
 		String prefix = "";		
 		if( uri.getPath().length() > 0 ){
-			String p = uri.getPath();		
-			prefix = p.substring(p.lastIndexOf("/"), p.length());
+			String p = uri.getPath().substring(0, uri.getPath().length()-1);	
+			if(p.endsWith("model")) 
+				prefix = "";
+			else 
+				prefix = p.substring(p.lastIndexOf("/")+1, p.length());
 		} else {
 			prefix = uri.getHost();		
 			prefix = prefix.replaceAll("www.", "");

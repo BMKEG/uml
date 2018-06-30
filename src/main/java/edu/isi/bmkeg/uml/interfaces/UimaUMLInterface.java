@@ -107,7 +107,7 @@ public class UimaUMLInterface extends JavaUmlInterface implements
 	@Override
 	public void buildJpaMavenProject(File srcJarFile, File jarFile, 
 			String group, String artifactId, String version,
-			String bmkegParentVersion) throws Exception {
+			String pkgPattern) throws Exception {
 		
 		UMLmodel m = this.getUmlModel();
 		
@@ -170,13 +170,6 @@ public class UimaUMLInterface extends JavaUmlInterface implements
 		pom += "	<version>" + version + "</version>\n";
 		pom += "	<packaging>jar</packaging>\n";
 
-		pom += "	<parent>\n";
-		pom += "		<groupId>edu.isi.bmkeg</groupId>\n";
-		pom += "		<artifactId>bmkeg-parent</artifactId>\n";
-		pom += "		<version>" + bmkegParentVersion + "</version>\n";
-		pom += "		<relativePath>../bmkeg-parent</relativePath>\n";
-		pom += "	</parent>\n";
-		
 		pom += "	<build>\n";
 		pom += "		<plugins>\n";
 		pom += "			<plugin>\n";
@@ -242,7 +235,8 @@ public class UimaUMLInterface extends JavaUmlInterface implements
 		// you'd prefer to write your own functions against the underlying database. 
 
 		this.setLookupTable( this.getJavaLookupTable() );
-		Map<String,File> javaFiles = this.generateJavaCodeForModel(main_java,  "\\.model\\.", true);
+		this.annotFlag = true;
+		Map<String,File> javaFiles = this.generateJavaCodeForModel(main_java, pkgPattern);
 
 		this.setLookupTable( this.uimaLookupTable );
 		javaFiles.putAll( this.generateJCasTypeDescriptionForModel(main_java, main_resources_uima, 

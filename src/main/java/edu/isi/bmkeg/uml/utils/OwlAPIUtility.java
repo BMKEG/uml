@@ -2,6 +2,7 @@ package edu.isi.bmkeg.uml.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,7 +50,9 @@ import uk.ac.manchester.cs.owl.owlapi.OWLImportsDeclarationImpl;
 import edu.isi.bmkeg.uml.model.UMLattribute;
 import edu.isi.bmkeg.uml.model.UMLclass;
 import edu.isi.bmkeg.uml.model.UMLitem;
+import edu.isi.bmkeg.uml.model.UMLpackage;
 import edu.isi.bmkeg.uml.model.UMLrole;
+import edu.isi.bmkeg.utils.Converters;
 
 /**
  * Refer to ./owlapi/examples/OWLPrimer.java for example code
@@ -169,10 +172,10 @@ public class OwlAPIUtility {
 			// 
 			// Only include attributes that are not foreign keys & are marked as 'implemented' 
 			//
-			if( a.getFkRole() != null || !a.getToImplement()  ) {
+			if( a.getFkRole() != null || !a.getToImplement() || a.getPk() != null) {
 				continue;
 			}
-			
+						
 			// 
 			// We use the pattern of having an attribute or a role called 'term',
 			// pointing to the "edu.isi.bmkeg.terminology.model.Term" class as 
@@ -185,6 +188,7 @@ public class OwlAPIUtility {
 							) {
 				continue;
 			}
+
 			
 			if( !propMap.containsKey(a.readPrefix() + ":" + a.getBaseName()) ) {
 				
@@ -322,7 +326,7 @@ public class OwlAPIUtility {
 						r.getDirectClass().readPrefix() + ":" + r.getDirectClass().getBaseName(), 
 						o);						
 								
-				this.addNameComment(r.getBaseName(), r.getBaseName(), o);
+				this.addNameComment(r.readPrefix() + ":" + r.getBaseName(), r.getBaseName(), o);
 				
 				Set<String> domSet = new HashSet<String>();
 				domSet.add(c.readPrefix() + ":" + c.getBaseName());
@@ -600,12 +604,10 @@ public class OwlAPIUtility {
 	}
 
 	public void setPrefix(String prefixName, String prefixUri) {
-
 		pm.setPrefix(prefixName, prefixUri);
 	}
 	
 	public void setPrefix(String prefixUri) {
-
 		pm.setDefaultPrefix(prefixUri);
 	}
 
@@ -696,6 +698,26 @@ public class OwlAPIUtility {
 		
 		return label;
 
+	}
+
+	public String readPrefix(UMLclass c) throws Exception {
+		return this.readPrefix(c.getPkg());
+	}
+
+	public String readPrefix(UMLpackage pkg) throws Exception {
+		
+		URI uri = Converters.convertUmlAddressToUri(pkg.readPackageAddress()+"/");
+		IRI iri = IRI.create(uri);
+		String localPrefix = pm.getPrefixIRI(iri);
+		if( localPrefix == null || localPrefix.startsWith( ":" ) ) {
+			localPrefix = pkg.readPrefix() +":";
+			if(localPrefix.equals("model:")) {
+				return ":";
+			}
+			pm.setPrefix( localPrefix, uri.toString());
+		}
+		return localPrefix;
+	
 	}
 	
 }
